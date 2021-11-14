@@ -19,7 +19,6 @@ Analityk (można wyznaczyć taką rolę w IAM) może przygotowywać raporty o pl
 	- Spanner/Cloud SQL (Postgres)
 	- Firestore - konfiguracja aplikacji
 	- Secret Manager - przechowywanie sekretów
-	- Export BigQuery, ew. budowa dashboardu Data Studio
 - DevOps:
 	- Cloud Logging
 	- Cloud Trace
