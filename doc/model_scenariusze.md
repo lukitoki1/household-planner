@@ -4,7 +4,7 @@
 ## Użytkownik
 Korzystamy z integracji z google 
 - Użytkownik loguje się kontem googla. 
-- Tworzymy wpis w tabeli Users dodając email i wybrany przez użytkowika user_name. 
+- Tworzymy wpis w tabeli Users dodając email i user_name otrzymany z SSO Google. 
 - user_id nadawane jest automatycznie i stanowi punkt wyjścia dla dalszej struktury.
 
 ## Tworzenie householda
