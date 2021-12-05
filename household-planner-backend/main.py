@@ -15,4 +15,4 @@ app.include_router(households.router, prefix="/api")
 
 @app.get("/api")
 async def root():
-    return {"message": "Hello!"}
+    return {"message": "test_deploy"}
