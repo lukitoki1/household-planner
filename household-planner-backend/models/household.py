@@ -2,8 +2,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
 from db.database import Base
-from models.household_members import household_members
-
+from .household_members import Household_member
 
 class Household(Base):
     __tablename__ = "households"
@@ -12,7 +11,7 @@ class Household(Base):
     name = Column("hous_name", String)
     users = relationship(
         "User",
-        secondary=household_members,
+        secondary=Household_member.__tablename__,
         back_populates="households")
 
-    chores = relationship("Chore", back_populates="household")
+    chores = relationship("Chore", back_populates="households")

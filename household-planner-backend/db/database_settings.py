@@ -27,7 +27,9 @@ load_dotenv()
 
 class DbSettings:
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")
+    #prod
     # POSTGRES_PASSWORD = get_db_pass(prod)
+    #test
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", 5432)

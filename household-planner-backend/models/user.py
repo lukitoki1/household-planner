@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Numeric
 from sqlalchemy.orm import relationship
 
 from db.database import Base
-from models.household_members import household_members
+from .household_members import Household_member
 
 
 class User(Base):
@@ -14,5 +14,5 @@ class User(Base):
     phone_number = Column("user_phone_numeber", Numeric)
     households = relationship(
         "Household",
-        secondary=household_members,
+        secondary=Household_member.__tablename__,
         back_populates="users")
