@@ -6,8 +6,8 @@ instance_class: F2
 service: default
 
 env_variables:
-  POSTGRES_USER="household-planner"
-  POSTGRES_SERVER="household-planner-333519:us-central1:postgres-instance"
-  POSTGRES_PORT="5432"
-  POSTGRES_DB="household-planner"
-  PROD="True"
+  POSTGRES_USER: "household-planner"
+  POSTGRES_SERVER: "household-planner-333519:us-central1:postgres-instance"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "household-planner"
+  PROD: "True"
