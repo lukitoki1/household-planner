@@ -6,9 +6,9 @@ from db.database import Base
 #                           Column("hsme_hous_id", ForeignKey("households.hous_id")),
 #                           Column("hsme_user_id", ForeignKey("users.user_id")))
 
-class Members(Base):
+class Member(Base):
     __tablename__ = "household_members"
 
-    hsme_id = Column("hsme_id", Integer, primary_key=True, index=True)
+    id = Column("hsme_id", Integer, primary_key=True, index=True)
     hsme_hous_id = Column("hsme_hous_id", Integer, ForeignKey("households.hous_id"))
     hsme_user_id = Column("hsme_user_id", Integer, ForeignKey("users.user_id"))
