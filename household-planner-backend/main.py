@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from db.database import engine
 from models import chore, household, household_members, user
@@ -10,6 +11,17 @@ household_members.Base.metadata.create_all(bind=engine)
 user.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(households.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(members.router, prefix="/api")
