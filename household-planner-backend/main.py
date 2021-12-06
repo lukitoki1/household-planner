@@ -12,11 +12,7 @@ user.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-origins = [
-"http://localhost:8000",
-"http://localhost:3000",
-"https://household-planner-333519.uc.r.appspot.com"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
