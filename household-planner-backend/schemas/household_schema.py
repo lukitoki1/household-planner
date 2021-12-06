@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 
-from schemas.user_schema import User
+from .user_schema import User
 
 
 class HouseholdBase(BaseModel):

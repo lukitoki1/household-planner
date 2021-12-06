@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from db.database_settings import db_settings
+
 from db.database_settings import prod
 
 
@@ -26,7 +27,12 @@ def create_connection_engine():
     return create_engine(SQLALCHEMY_DATABASE_URL)
 
 
+#prod
 engine = create_connection_engine()
+#test
+# SQLALCHEMY_DATABASE_URL = db_settings.DATABASE_URL
+# engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
