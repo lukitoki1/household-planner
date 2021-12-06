@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from db.database import engine
 from models import chore, household, household_members, user
@@ -14,6 +15,8 @@ app = FastAPI()
 
 origins = ["*"]
 
+app.add_middleware(GZipMiddleware)
+app.add_middleware(GZipMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
