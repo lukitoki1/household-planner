@@ -40,6 +40,6 @@ async def root():
     return {"message": "test_deploy"}
 
 
-@app.get("/user/", tags=["user"])
+@app.get("/api/user", tags=["user"])
 async def hello_user(firebase_token = Depends(get_firebase_token)):
     return firebase_token
