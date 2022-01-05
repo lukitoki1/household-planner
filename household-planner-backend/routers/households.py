@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from schemas import household_schema, members_schema, user_schema
 from models import household, household_members, user
 from db.database import get_db
+from operator import attrgetter
 
 router = APIRouter()
 
@@ -10,6 +11,7 @@ router = APIRouter()
 @router.get("/households/", tags=["households"])
 async def read_households(db: Session = Depends(get_db)):
     db_households = get_households(db)
+    db_households.sort(key=attrgetter('id'))
     return db_households
 
 
