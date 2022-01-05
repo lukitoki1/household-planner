@@ -36,8 +36,14 @@ async def create_household(household_create: household_schema.HouseholdCreate, d
     return create_household(db=db, house=household_create)
 
 
+@router.put("/households/{house_id}", tags=["households"])
+async def put_household(house_id: int, household_update: household_schema.HouseholdCreate,
+                        db: Session = Depends(get_db)):
+    return update_household(db=db, house=household_update, house_id=house_id)
+
+
 @router.delete("/households/{house_id}", tags=["households"])
-async def read_household(house_id: int, db: Session = Depends(get_db)):
+async def delete_household(house_id: int, db: Session = Depends(get_db)):
     deleted = delete_household_by_id(db, house_id)
     if deleted is False:
         raise HTTPException(status_code=404, detail="Household not found")
@@ -58,6 +64,19 @@ def get_household_members_by_house_id(db: Session, house_id: int):
 
 def create_household(db: Session, house: household_schema.HouseholdCreate):
     db_house = household.Household(name=house.name)
+    db.add(db_house)
+    db.commit()
+    db.refresh(db_house)
+    return db_house
+
+
+def update_household(db, house, house_id):
+    db_house = db.query(household.Household).filter(household.Household.id == house_id).first()
+    if not db_house:
+        return None
+    house_data = house.dict(exclude_unset=True)
+    for key, value in house_data.items():
+        setattr(db_house, key, value)
     db.add(db_house)
     db.commit()
     db.refresh(db_house)
