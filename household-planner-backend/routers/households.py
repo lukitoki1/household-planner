@@ -39,7 +39,10 @@ async def create_household(household_create: household_schema.HouseholdCreate, d
 @router.put("/households/{house_id}", tags=["households"])
 async def put_household(house_id: int, household_update: household_schema.HouseholdCreate,
                         db: Session = Depends(get_db)):
-    return update_household(db=db, house=household_update, house_id=house_id)
+    house_upadted = update_household(db=db, house=household_update, house_id=house_id)
+    if house_upadted is None:
+        raise HTTPException(status_code=404, detail="Household not found")
+    return house_upadted
 
 
 @router.delete("/households/{house_id}", tags=["households"])
