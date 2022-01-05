@@ -43,7 +43,7 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def create_user(db: Session, user: user_schema.UserCreate):
-    db_user = usermodel.User(name=user.name, email=user.email, phone_number=user.phone_number)
+    db_user = usermodel.User(name=user.name, email=user.email)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
