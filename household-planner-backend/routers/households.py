@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from schemas import household_schema
-from models import household
+from schemas import household_schema, members_schema, user_schema
+from models import household, household_members, user
 from db.database import get_db
 
 router = APIRouter()
@@ -19,6 +19,16 @@ async def read_household(house_id: int, db: Session = Depends(get_db)):
     if db_household is None:
         raise HTTPException(status_code=404, detail="Household not found")
     return db_household
+
+
+@router.get("/households/{house_id}/members", tags=["households"])
+async def read_household_members(house_id: int, db: Session = Depends(get_db)):
+    db_household = get_household_by_id(db, house_id=house_id)
+    if db_household is None:
+        raise HTTPException(status_code=404, detail="Household not found")
+    db_household_members = get_household_members_by_house_id(db, house_id=db_household.id)
+    mem_ids_list = [member.hsme_user_id for member in db_household_members]
+    return db.query(user.User).filter(user.User.id.in_(mem_ids_list)).all()
 
 
 @router.post("/households/", response_model=household_schema.Household, tags=["households"])
@@ -40,6 +50,10 @@ def get_households(db: Session, skip: int = 0):
 
 def get_household_by_id(db: Session, house_id: int):
     return db.query(household.Household).filter(household.Household.id == house_id).first()
+
+
+def get_household_members_by_house_id(db: Session, house_id: int):
+    return db.query(household_members.Member).filter(household_members.Member.hsme_hous_id == house_id).all()
 
 
 def create_household(db: Session, house: household_schema.HouseholdCreate):

@@ -35,7 +35,7 @@ async def create_member(member_create: members_schema.MemberCreate, db: Session 
 
 
 @router.delete("/members/", tags=["members"])
-async def read_member(
+async def delete_member(
         householdID: int = Query(...),
         userID: int = Query(...),
         db: Session = Depends(get_db)):
