@@ -4,7 +4,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from db.database import engine
 from models import chore, household, household_members, user
-from routers import households, users, members
+from routers import households, users, members, chores
 
 import firebase_admin
 
@@ -33,6 +33,7 @@ app.add_middleware(
 app.include_router(households.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(members.router, prefix="/api")
+app.include_router(chores.router, prefix="/api")
 
 
 @app.get("/api")

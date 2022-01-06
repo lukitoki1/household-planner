@@ -1,5 +1,5 @@
-from typing import List
 from pydantic import BaseModel
+
 
 class UserBase(BaseModel):
     name: str
@@ -16,3 +16,10 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class UserDTO:
+    def __init__(self, id, name, email):
+        self.id = id
+        self.name = name
+        self.email = email

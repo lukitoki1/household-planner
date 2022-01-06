@@ -1,7 +1,7 @@
-from typing import List
 from pydantic import BaseModel
 
-from .user_schema import User
+from .household_schema import HouseholdDTO
+from .user_schema import UserDTO
 
 
 class ChoreBase(BaseModel):
@@ -18,18 +18,22 @@ class ChoreCreate(ChoreBase):
 
 class Chore(ChoreBase):
     id: int
+    user: UserDTO
+    household: HouseholdDTO
 
     class Config:
         orm_mode = True
+        arbitrary_types_allowed = True
 
-        # export
-        # interface
-        # ChoreDTO
-        # {
-        #     id: number;
-        # name: string;
-        # description: string;
-        # user?: UserDTO;
-        # household: HouseholdDTO;
-        # nextOccurrence: string;
-        # }
+
+class ChoreDTO:
+    def __init__(self, id, name, description, userDto, householdDto, nextOccurence, intervalDays, language):
+        self.id = id
+        self.name = name
+        self.description = description
+        self.user = userDto
+        self.household = householdDto
+        self.nextOccurence = nextOccurence
+        self.intervalDays = intervalDays
+        self.language = language
+

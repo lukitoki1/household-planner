@@ -18,3 +18,9 @@ class Household(HouseholdBase):
 
     class Config:
         orm_mode = True
+
+
+class HouseholdDTO:
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
