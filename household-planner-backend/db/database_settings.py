@@ -1,7 +1,7 @@
 import os
 import hashlib
 from dotenv import load_dotenv
-# from google.cloud import secretmanager
+from google.cloud import secretmanager
 
 load_dotenv()
 PROJECT_ID = "household-planner-333519"
