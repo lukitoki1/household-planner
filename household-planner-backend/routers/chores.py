@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -43,10 +43,11 @@ def create_chore_dto(db, db_chore):
     if user_id is not None:
         userDto = get_userDto_for_chore_by_id(db, user_id)
 
-    nextOccurenceDate = db_chore.chor_start_date + timedelta(days=db_chore.chor_occurence)
+    nextOccurenceDate = calculate_next_occurence_date(db_chore.chor_start_date, db_chore.chor_occurence)
     householdDto = get_householdDto_for_chore_by_id(db, household_id)
 
     choreDto = chores_schema.ChoreDTO(db_chore.id, db_chore.chor_name, db_chore.chor_description, userDto, householdDto,
+                                      db_chore.chor_start_date,
                                       nextOccurenceDate, db_chore.chor_occurence, db_chore.chor_language)
     return choreDto
 
@@ -90,3 +91,16 @@ def get_household_chores(db: Session, house_id: int, name: Optional[str] = None,
 
     db_chores = db_chore_query.all()
     return db_chores
+
+
+def calculate_next_occurence_date(start_date, interval):
+    now = datetime.now()
+    print(now)
+    print(start_date)
+    if now <= start_date:
+        return start_date
+    delta = now - start_date
+    delta_days = delta.days
+    mod = delta_days % interval
+    next_occurence_date = start_date + timedelta(days=(delta_days+(interval - mod)))
+    return next_occurence_date

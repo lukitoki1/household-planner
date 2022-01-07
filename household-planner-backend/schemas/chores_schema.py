@@ -27,13 +27,13 @@ class Chore(ChoreBase):
 
 
 class ChoreDTO:
-    def __init__(self, id, name, description, userDto, householdDto, nextOccurence, intervalDays, language):
+    def __init__(self, id, name, description, userDto, householdDto, startDate, nextOccurence, intervalDays, language):
         self.id = id
         self.name = name
         self.description = description
         self.user = userDto
         self.household = householdDto
+        self.startDate = startDate
         self.nextOccurence = nextOccurence
         self.intervalDays = intervalDays
         self.language = language
-
