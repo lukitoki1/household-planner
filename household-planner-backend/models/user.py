@@ -11,6 +11,7 @@ class User(Base):
     id = Column("user_id", Integer, primary_key=True, index=True)
     name = Column("user_name", String)
     email = Column("user_email", String)
+    notification_email = Column("user_notification_email", String)
     households = relationship(
         "Household",
         secondary=Member.__tablename__,
