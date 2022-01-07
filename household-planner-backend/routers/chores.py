@@ -95,8 +95,6 @@ def get_household_chores(db: Session, house_id: int, name: Optional[str] = None,
 
 def calculate_next_occurence_date(start_date, interval):
     now = datetime.now()
-    print(now)
-    print(start_date)
     if now <= start_date:
         return start_date
     delta = now - start_date
