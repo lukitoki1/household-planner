@@ -15,9 +15,6 @@ def get_translation(lang: str, text: str):
     print(u"Text: {}".format(result["input"]))
     print(u"Translation: {}".format(result["translatedText"]))
     print(u"Detected source language: {}".format(result["detectedSourceLanguage"]))
-    dict={}
-    dict['lang']=lang
-    dict['text']=result['translatedText']
-    return dict
+    return result['translatedText']
 
 
