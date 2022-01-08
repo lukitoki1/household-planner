@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 from .household_schema import HouseholdDTO
@@ -8,7 +10,7 @@ from typing import Optional
 class ChoreBase(BaseModel):
     name: str
     description: str
-    startDate: str
+    startDate: datetime
     intervalDays: int
     language: str
 
@@ -20,7 +22,7 @@ class ChoreCreate(ChoreBase):
 class ChoreEdit(BaseModel):
     name: Optional[str]
     description: Optional[str]
-    startDate: Optional[str]
+    startDate: Optional[datetime]
     intervalDays: Optional[int]
     language: Optional[str]
 
