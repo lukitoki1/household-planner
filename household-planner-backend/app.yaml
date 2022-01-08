@@ -12,3 +12,4 @@ env_variables:
   POSTGRES_DB: "household-planner"
   PROD: "True"
   PHOTOS_SERVICE: "https://photos-dot-household-planner-333519.uc.r.appspot.com"
+  TRANSLATION_SERVICE: "https://translation-dot-household-planner-333519.uc.r.appspot.com"

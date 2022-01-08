@@ -20,6 +20,8 @@ router = APIRouter()
 client = httpx.AsyncClient()
 
 photo_service = os.getenv("PHOTOS_SERVICE")
+translation_service = os.getenv("TRANSLATION_SERVICE")
+
 
 @router.get("/households/{house_id}/chores", tags=["chores"])
 async def read_household_chores(house_id: int, name: Optional[str] = None, interval: Optional[int] = None,
@@ -43,25 +45,31 @@ async def read_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
     choreDto = create_chore_dto(db, db_chore)
     return choreDto
 
+
 @router.get("/chores/{chore_id}/description", tags=["chores"])
 async def read_chore_translation(chore_id: int, language: str, db: Session = Depends(get_db)):
-    #pobranie opisu z bazy
+    # pobranie opisu z bazy
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
     choreDto = create_chore_dto(db, db_chore)
     choreDesc = choreDto.description
-    #utworzenie url do zapytania mikroserwisu i wysłanie zapytania
+    # utworzenie url do zapytania mikroserwisu i wysłanie zapytania
     text = urllib.parse.quote(choreDesc)
-    url = 'http://localhost:8080/api/translation?lang=' + str(language) + '&text=' + str(text)
+    url = f"{translation_service}?lang={language}&text={text}"
     res = await make_translation_request(url)
+    if res.status_code < 200 or res.status_code > 299:
+        res_det = json.loads(res.text)
+        raise HTTPException(status_code=404, detail=res_det['detail'])
     return res.json()
+
 
 async def make_translation_request(url: str):
     req = client.build_request('get', url)
     res = client.send(req)
-    #odbiór odpowiedzi
+    # odbiór odpowiedzi
     return await res
+
 
 @router.post("/households/{house_id}/chores", tags=["chores"])
 async def post_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db: Session = Depends(get_db)):
@@ -126,7 +134,7 @@ async def get_photos(chore_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
-async def get_photo(chore_id: int, file_name: str,  db: Session = Depends(get_db)):
+async def get_photo(chore_id: int, file_name: str, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
@@ -141,7 +149,7 @@ async def get_photo(chore_id: int, file_name: str,  db: Session = Depends(get_db
 
 
 @router.get("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
-async def get_photo(chore_id: int, file_name: str,  db: Session = Depends(get_db)):
+async def get_photo(chore_id: int, file_name: str, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
