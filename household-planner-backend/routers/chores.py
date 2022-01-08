@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, status
 from sqlalchemy.orm import Session
@@ -8,12 +8,9 @@ from models import chore, household_members
 from routers import members, users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
-from dateutil.parser import isoparse
 import httpx
 import requests
 import os
-from starlette.responses import StreamingResponse
-from starlette.background import BackgroundTask
 import urllib.parse
 import json
 
@@ -188,9 +185,7 @@ def create_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db: Ses
     if db_house is None:
         raise HTTPException(status_code=404, detail="Household not found")
 
-    date_string = chore_create.startDate
-    date = isoparse(date_string)
-    db_chores = chore.Chore(chor_hous_id=house_id, chor_hsme_id=None, chor_start_date=date,
+    db_chores = chore.Chore(chor_hous_id=house_id, chor_hsme_id=None, chor_start_date=chore_create.startDate,
                             chor_occurence=chore_create.intervalDays, chor_name=chore_create.name,
                             chor_description=chore_create.description, chor_status=None,
                             chor_language=chore_create.language)
@@ -239,7 +234,9 @@ def get_household_chores(db: Session, house_id: int, name: Optional[str] = None,
 
 
 def calculate_next_occurence_date(start_date, interval):
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
+    print(now)
+    print(start_date)
     if now <= start_date:
         return start_date
     delta = now - start_date
@@ -268,8 +265,7 @@ def update_chore(chore_id: int, chore_edit: chores_schema.ChoreEdit, db: Session
     if "description" in chore_data:
         chore_data["chor_description"] = chore_data.pop("description")
     if "startDate" in chore_data:
-        start_date_string = chore_data.pop("startDate")
-        chore_data["chor_start_date"] = isoparse(start_date_string)
+        chore_data["chor_start_date"] = chore_data.pop("startDate")
     if "intervalDays" in chore_data:
         chore_data["chor_occurence"] = chore_data.pop("intervalDays")
     if "language" in chore_data:
