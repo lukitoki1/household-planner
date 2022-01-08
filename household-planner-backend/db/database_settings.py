@@ -27,8 +27,8 @@ prod = (os.getenv('PROD', 'False') == 'True')
 
 class DbSettings:
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")
-    # POSTGRES_PASSWORD = get_db_pass(prod)
-    POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+    POSTGRES_PASSWORD = get_db_pass(prod)
+    #POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
     POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", 5432)
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "household_db")
