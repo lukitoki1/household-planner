@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, status
 from sqlalchemy.orm import Session
 
 from db.database import get_db
@@ -8,8 +8,11 @@ from models import chore, household_members
 from routers import members, users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
+import requests
 
 router = APIRouter()
+
+photo_service = os.getenv("PHOTOS_SERVICE")
 
 
 @router.get("/households/{house_id}/chores", tags=["chores"])
@@ -35,37 +38,48 @@ async def read_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
     return choreDto
 
 
-@router.post("/households/{house_id}/chores", tags=["chores"])
-async def post_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db: Session = Depends(get_db)):
-    return create_chore(house_id, chore_create, db)
-
-
-@router.post("/chores/{chore_id}", tags=["chores"])
-async def assign_user_to_chore(chore_id: int, assignee: str, db: Session = Depends(get_db)):
-    if assignee is None:
-        raise HTTPException(status_code=400, detail="No assignee parameter")
-    return add_user_to_chore(chore_id, assignee, db)
-
-
-@router.delete("/chores/{chore_id}/assignee", tags=["chores"])
-async def remove_user_from_chore(chore_id: int, db: Session = Depends(get_db)):
-    return delete_chore_assignee(chore_id, db)
-
-
-@router.put("/chores/{chore_id}", tags=["chores"])
-async def put_chore(chore_id: int, chore_edit: chores_schema.ChoreEdit, db: Session = Depends(get_db)):
-    db_chore = update_chore(chore_id, chore_edit, db)
+@router.post("/chores/{chore_id}/photos", tags=["chores"], status_code=status.HTTP_200_OK)
+async def upload_photo(chore_id: int, db: Session = Depends(get_db), photo: UploadFile = File(...)):
+    db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    return db_chore
+
+    content = await file.read()
+    response = requests.post(f"{photo_service}/photos/chores/{chore_id}/photos",
+                             files={"photo": (photo.filename, content, photo.content_type)})
+
+    if response.status_code != status.HTTP_200_OK:
+        raise HTTPException(status_code=response.status_code)
 
 
-@router.delete("/chores/{chore_id}", tags=["chores"])
-async def delete_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
-    deleted = delete_chore_by_id(db, chore_id)
-    if deleted is False:
+@router.get("/chores/{chore_id}/photos", tags=["chores"])
+async def get_photos(chore_id: int, db: Session = Depends(get_db)):
+    db_chore = get_chore_by_id(db, chore_id)
+    if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    return chore_id
+
+    response = requests.get(
+        f"{photo_service}/photos/chores/{chore_id}/photos")
+
+    if response.status_code != status.HTTP_200_OK:
+        raise HTTPException(status_code=response.status_code)
+
+    return response.json()
+
+
+@router.get("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
+async def get_photo(chore_id: int, file_name: str,  db: Session = Depends(get_db)):
+    db_chore = get_chore_by_id(db, chore_id)
+    if db_chore is None:
+        raise HTTPException(status_code=404, detail="Chore not found")
+
+    response = requests.get(
+        f"{photo_service}/photos/chores/{chore_id}/photos/{file_name}")
+
+    if response.status_code != status.HTTP_200_OK:
+        raise HTTPException(status_code=response.status_code)
+
+    return response.json()
 
 
 def create_chore_dto(db, db_chore):
