@@ -229,8 +229,8 @@ def get_household_chores(db: Session, house_id: int, name: Optional[str] = None,
         raise HTTPException(status_code=404, detail="Household not found")
     db_chore_query = db.query(chore.Chore).filter(chore.Chore.chor_hous_id == house_id)
     if name is not None:
-        stripped_name = name.strip("\"")
-        db_chore_query = db.query(chore.Chore).filter(chore.Chore.chor_name.contains(stripped_name))
+        stripped_name = name.strip()
+        db_chore_query.filter(chore.Chore.chor_name == stripped_name)
     if interval is not None:
         db_chore_query = db.query(chore.Chore).filter(chore.Chore.chor_occurence == interval)
 

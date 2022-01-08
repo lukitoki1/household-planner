@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from db.database import get_db
 from operator import attrgetter
-from models import household, household_members, user
+from models import household, household_members, user, chore
 from schemas import household_schema
 from routers import users
 
@@ -66,6 +66,10 @@ async def delete_household_member(house_id: int, id: int, db: Session = Depends(
     db_household_members = get_household_member_by_user_id_and_house_id(db, house_id=db_household.id, user_id=id)
     if db_household_members is None:
         raise HTTPException(status_code=404, detail="User is not a household member")
+    db_member_chores = get_chores_by_hsme_id(db, hsme_id=db_household_members.id)
+    for member_chore in db_member_chores:
+        member_chore.chor_hsme_id = None
+        db.add(member_chore)
     db.delete(db_household_members)
     db.commit()
     return db_user.id
@@ -139,3 +143,7 @@ def delete_household_by_id(db: Session, house_id: int):
     db.delete(db_house)
     db.commit()
     return True
+
+
+def get_chores_by_hsme_id(db: Session, hsme_id: int):
+    return db.query(chore.Chore).filter(chore.Chore.chor_hsme_id == hsme_id).all()
