@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse, Response
 from firebase_admin import auth
 from models import user as usermodel
 
-from db.database import get_db
+from db.database import get_db, SessionLocal
 from routers.users import create_user
 from schemas.user_schema import UserCreate
 
@@ -48,16 +48,18 @@ class AuthMiddleware(BaseHTTPMiddleware):
         user_email = firebase_token.get('email')
         user_name = firebase_token.get('name')
 
-        db = next(get_db())
+        db = SessionLocal()
 
         user = db.query(usermodel.User).filter(usermodel.User.email == user_email).first()
         if not user:
             if not register_if_not_exists:
+                db.close()
                 raise AuthenticationError(self.default_error_message)
             else:
                 print(f"Creating user {user_email} with name {user_name}")
                 create_user(db, UserCreate(name=user_name, email=user_email))
 
+        db.close()
         return user_email
 
     def on_error(self):
