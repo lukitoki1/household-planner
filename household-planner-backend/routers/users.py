@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from starlette.requests import Request
+
 from schemas import user_schema
 from models import user as usermodel
 from db.database import get_db
@@ -7,31 +9,12 @@ from db.database import get_db
 router = APIRouter()
 
 
-@router.get("/users/", tags=["users"])
-async def read_users(db: Session = Depends(get_db)):
-    db_users = get_users(db)
-    return db_users
-
-
-@router.get("/users/{user_id}", tags=["users"])
-async def read_users(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user_by_id(db, user_id=user_id)
+@router.post("/login", tags=["users"])
+async def login_or_register(request: Request, db: Session = Depends(get_db)):
+    db_user = get_user_by_email(db, request.state.user_email)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=500, detail="User registration failed")
     return db_user
-
-
-@router.post("/users/", response_model=user_schema.User, tags=["users"])
-async def create_user(user_create: user_schema.UserCreate, db: Session = Depends(get_db)):
-    return create_user(db=db, user=user_create)
-
-
-@router.delete("/users/{user_id}", tags=["users"])
-async def read_user(user_id: int, db: Session = Depends(get_db)):
-    deleted = delete_user_by_id(db, user_id)
-    if deleted is False:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user_id
 
 
 @router.put("/users/{user_id}", response_model=user_schema.User, tags=["users"])

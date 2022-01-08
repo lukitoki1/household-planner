@@ -148,8 +148,8 @@ async def get_photo(chore_id: int, file_name: str, db: Session = Depends(get_db)
     return response.json()
 
 
-@router.get("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
-async def get_photo(chore_id: int, file_name: str, db: Session = Depends(get_db)):
+@router.delete("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
+async def delete_photo(chore_id: int, file_name: str,  db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")

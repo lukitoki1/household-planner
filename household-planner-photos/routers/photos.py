@@ -17,13 +17,13 @@ async def upload_photo(chore_id: int, photo: UploadFile = File(...)):
 @router.get("/chores/{chore_id}/photos", tags=["chores"])
 async def get_photos(chore_id: int):
     if not exist_folder(str(chore_id)):
-        raise HTTPException(status_code=404, detail="images not found")
+        return []
 
     return get_folder_files(str(chore_id))
 
 
 @router.delete("/chores/{chore_id}/photos", tags=["chores"])
-async def get_photos(chore_id: int):
+async def delete_photos(chore_id: int):
     if not exist_folder(str(chore_id)):
         return
 
@@ -39,7 +39,7 @@ async def get_photo(chore_id: int, file_name: str):
 
 
 @router.delete("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
-async def get_photo(chore_id: int, file_name: str):
+async def delete_photo(chore_id: int, file_name: str):
     if not exist_file(str(chore_id), file_name):
         return
 
