@@ -40,7 +40,7 @@ jobs:
           deliverables: ./household-planner-photos/app.yaml
           project_id: ${{ secrets.GCP_PROJECT }}
           credentials: ${{ secrets.GCP_CREDENTIALS }}
-   deploy_translation_service:
+  deploy_translation_service:
     name: Deploying Translation Service to Google Cloud
     runs-on: ubuntu-latest
 
