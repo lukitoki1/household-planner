@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from models import chore
+from models import chore, household_members
 from routers import members, users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
@@ -35,6 +35,39 @@ async def read_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
     return choreDto
 
 
+@router.post("/households/{house_id}/chores", tags=["chores"])
+async def post_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db: Session = Depends(get_db)):
+    return create_chore(house_id, chore_create, db)
+
+
+@router.post("/chores/{chore_id}", tags=["chores"])
+async def assign_user_to_chore(chore_id: int, assignee: str, db: Session = Depends(get_db)):
+    if assignee is None:
+        raise HTTPException(status_code=400, detail="No assignee parameter")
+    return add_user_to_chore(chore_id, assignee, db)
+
+
+@router.delete("/chores/{chore_id}/assignee", tags=["chores"])
+async def remove_user_from_chore(chore_id: int, db: Session = Depends(get_db)):
+    return delete_chore_assignee(chore_id, db)
+
+
+@router.put("/chores/{chore_id}", tags=["chores"])
+async def put_chore(chore_id: int, chore_edit: chores_schema.ChoreEdit, db: Session = Depends(get_db)):
+    db_chore = update_chore(chore_id, chore_edit, db)
+    if db_chore is None:
+        raise HTTPException(status_code=404, detail="Chore not found")
+    return db_chore
+
+
+@router.delete("/chores/{chore_id}", tags=["chores"])
+async def delete_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
+    deleted = delete_chore_by_id(db, chore_id)
+    if deleted is False:
+        raise HTTPException(status_code=404, detail="Chore not found")
+    return chore_id
+
+
 def create_chore_dto(db, db_chore):
     household_id = db_chore.chor_hous_id
     house_mem_id = db_chore.chor_hsme_id
@@ -54,6 +87,23 @@ def create_chore_dto(db, db_chore):
 
 def get_chore_by_id(db: Session, chore_id: int):
     return db.query(chore.Chore).filter(chore.Chore.id == chore_id).first()
+
+
+def create_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db: Session):
+    db_house = households.get_household_by_id(db, house_id)
+    if db_house is None:
+        raise HTTPException(status_code=404, detail="Household not found")
+
+    date_string = chore_create.startDate
+    date = datetime.fromisoformat(date_string)
+    db_chores = chore.Chore(chor_hous_id=house_id, chor_hsme_id=None, chor_start_date=date,
+                            chor_occurence=chore_create.intervalDays, chor_name=chore_create.name,
+                            chor_description=chore_create.description, chor_status=None,
+                            chor_language=chore_create.language)
+    db.add(db_chores)
+    db.commit()
+    db.refresh(db_chores)
+    return create_chore_dto(db, db_chores)
 
 
 def get_userDto_for_chore_by_id(db: Session, user_id: int):
@@ -100,5 +150,72 @@ def calculate_next_occurence_date(start_date, interval):
     delta = now - start_date
     delta_days = delta.days
     mod = delta_days % interval
-    next_occurence_date = start_date + timedelta(days=(delta_days+(interval - mod)))
+    next_occurence_date = start_date + timedelta(days=(delta_days + (interval - mod)))
     return next_occurence_date
+
+
+def delete_chore_by_id(db: Session, chore_id: int):
+    db_chore = db.query(chore.Chore).filter(chore.Chore.id == chore_id).first()
+    if not db_chore:
+        return False
+    db.delete(db_chore)
+    db.commit()
+    return True
+
+
+def update_chore(chore_id: int, chore_edit: chores_schema.ChoreEdit, db: Session):
+    db_chore = get_chore_by_id(db, chore_id)
+    if not db_chore:
+        return None
+    chore_data = chore_edit.dict(exclude_unset=True)
+    if "name" in chore_data:
+        chore_data["chor_name"] = chore_data.pop("name")
+    if "description" in chore_data:
+        chore_data["chor_description"] = chore_data.pop("description")
+    if "startDate" in chore_data:
+        start_date_string = chore_data.pop("startDate")
+        chore_data["chor_start_date"] = datetime.fromisoformat(start_date_string)
+    if "intervalDays" in chore_data:
+        chore_data["chor_occurence"] = chore_data.pop("intervalDays")
+    if "language" in chore_data:
+        chore_data["chor_language"] = chore_data.pop("language")
+    for key, value in chore_data.items():
+        setattr(db_chore, key, value)
+    db.add(db_chore)
+    db.commit()
+    db.refresh(db_chore)
+    return create_chore_dto(db, db_chore)
+
+
+def add_user_to_chore(chore_id: int, assignee: str, db: Session):
+    db_chore = get_chore_by_id(db, chore_id)
+    if db_chore is None:
+        raise HTTPException(status_code=404, detail="Chore not found")
+    db_user = users.get_user_by_email(db, assignee)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    house_id = db_chore.chor_hous_id
+    db_house = households.get_household_by_id(db, house_id)
+    if db_house is None:
+        raise HTTPException(status_code=404, detail="Household not found")
+    db_house_member = db.query(household_members.Member).filter(
+        household_members.Member.hsme_user_id == db_user.id,
+        household_members.Member.hsme_hous_id == db_house.id).first()
+    if db_house_member is None:
+        raise HTTPException(status_code=404, detail="The user does not belong to the same house as the chore")
+    db_chore.chor_hsme_id = db_house_member.id
+    db.add(db_chore)
+    db.commit()
+    db.refresh(db_chore)
+    return create_chore_dto(db, db_chore)
+
+
+def delete_chore_assignee(chore_id: int, db: Session):
+    db_chore = get_chore_by_id(db, chore_id)
+    if db_chore is None:
+        raise HTTPException(status_code=404, detail="Chore not found")
+    db_chore.chor_hsme_id = None
+    db.add(db_chore)
+    db.commit()
+    db.refresh(db_chore)
+    return chore_id

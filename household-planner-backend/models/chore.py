@@ -10,7 +10,7 @@ class Chore(Base):
     id = Column("chor_id", Integer, primary_key=True, index=True, nullable=False)
 
     chor_hous_id = Column("chor_hous_id", Integer, ForeignKey("households.hous_id"), nullable=False)
-    chor_hsme_id = Column("chor_hsme_id", Integer, ForeignKey("household_members.hsme_id"), nullable=False)
+    chor_hsme_id = Column("chor_hsme_id", Integer, ForeignKey("household_members.hsme_id"), nullable=True)
     chor_start_date = Column("chor_start_date", DateTime(timezone=True), default=func.now())
     chor_occurence = Column("chor_occurence", Integer)
     chor_name = Column("chor_name", String)
