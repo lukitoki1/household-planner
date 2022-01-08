@@ -7,9 +7,9 @@ router = APIRouter()
 
 
 @router.post("/chores/{chore_id}/photos", tags=["chores"], status_code=status.HTTP_200_OK)
-async def upload_photo(chore_id: int, file: UploadFile = File(...)):
-    content = await file.read()
-    new_blob = create_blob(str(chore_id), file.filename)
+async def upload_photo(chore_id: int, photo: UploadFile = File(...)):
+    content = await photo.read()
+    new_blob = create_blob(str(chore_id), photo.filename)
     new_blob.upload_from_string(content)
 
 

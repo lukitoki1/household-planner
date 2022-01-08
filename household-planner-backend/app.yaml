@@ -11,3 +11,4 @@ env_variables:
   POSTGRES_PORT: "5432"
   POSTGRES_DB: "household-planner"
   PROD: "True"
+  PHOTOS_SERVICE: "https://photos-dot-household-planner-333519.uc.r.appspot.com"
