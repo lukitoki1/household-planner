@@ -8,6 +8,7 @@ from models import chore, household_members
 from routers import members, users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
+from dateutil.parser import isoparse
 import httpx
 import requests
 import os
@@ -76,11 +77,11 @@ async def post_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db:
     return create_chore(house_id, chore_create, db)
 
 
-@router.post("/chores/{chore_id}", tags=["chores"])
-async def assign_user_to_chore(chore_id: int, assignee: str, db: Session = Depends(get_db)):
-    if assignee is None:
-        raise HTTPException(status_code=400, detail="No assignee parameter")
-    return add_user_to_chore(chore_id, assignee, db)
+@router.post("/chores/{chore_id}/assignee", tags=["chores"])
+async def assign_user_to_chore(chore_id: int, email: str, db: Session = Depends(get_db)):
+    if email is None:
+        raise HTTPException(status_code=400, detail="No email parameter")
+    return add_user_to_chore(chore_id, email, db)
 
 
 @router.delete("/chores/{chore_id}/assignee", tags=["chores"])
@@ -149,7 +150,7 @@ async def get_photo(chore_id: int, file_name: str, db: Session = Depends(get_db)
 
 
 @router.delete("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
-async def delete_photo(chore_id: int, file_name: str,  db: Session = Depends(get_db)):
+async def delete_photo(chore_id: int, file_name: str, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
@@ -188,7 +189,7 @@ def create_chore(house_id: int, chore_create: chores_schema.ChoreCreate, db: Ses
         raise HTTPException(status_code=404, detail="Household not found")
 
     date_string = chore_create.startDate
-    date = datetime.fromisoformat(date_string)
+    date = isoparse(date_string)
     db_chores = chore.Chore(chor_hous_id=house_id, chor_hsme_id=None, chor_start_date=date,
                             chor_occurence=chore_create.intervalDays, chor_name=chore_create.name,
                             chor_description=chore_create.description, chor_status=None,
@@ -267,7 +268,7 @@ def update_chore(chore_id: int, chore_edit: chores_schema.ChoreEdit, db: Session
         chore_data["chor_description"] = chore_data.pop("description")
     if "startDate" in chore_data:
         start_date_string = chore_data.pop("startDate")
-        chore_data["chor_start_date"] = datetime.fromisoformat(start_date_string)
+        chore_data["chor_start_date"] = isoparse(start_date_string)
     if "intervalDays" in chore_data:
         chore_data["chor_occurence"] = chore_data.pop("intervalDays")
     if "language" in chore_data:
