@@ -9,7 +9,6 @@ class UserBase(BaseModel):
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
-    notification_email: Optional[str] = None
 
 class UserCreate(UserBase):
     pass
