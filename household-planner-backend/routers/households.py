@@ -5,6 +5,7 @@ from db.database import get_db
 from operator import attrgetter
 from models import household, household_members, user
 from schemas import household_schema
+from routers import users
 
 router = APIRouter()
 
@@ -32,6 +33,39 @@ async def read_household_members(house_id: int, db: Session = Depends(get_db)):
     db_household_members = get_household_members_by_house_id(db, house_id=db_household.id)
     mem_ids_list = [member.hsme_user_id for member in db_household_members]
     return db.query(user.User).filter(user.User.id.in_(mem_ids_list)).all()
+
+
+@router.post("/households/{house_id}/members", tags=["households"])
+async def post_household_member(house_id: int, email: str, db: Session = Depends(get_db)):
+    if email is None:
+        raise HTTPException(status_code=400, detail="No email parameter")
+    db_household = get_household_by_id(db, house_id=house_id)
+    if db_household is None:
+        raise HTTPException(status_code=404, detail="Household not found")
+    db_user = users.get_user_by_email(db, email)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db_member = household_members.Member(hsme_hous_id=db_household.id, hsme_user_id=db_user.id)
+    db.add(db_member)
+    db.commit()
+    db.refresh(db_member)
+    return db_member
+
+
+@router.delete("/households/{house_id}/members", tags=["households"])
+async def delete_household_member(house_id: int, id: int, db: Session = Depends(get_db)):
+    db_household = get_household_by_id(db, house_id=house_id)
+    if db_household is None:
+        raise HTTPException(status_code=404, detail="Household not found")
+    db_user = users.get_user_by_id(db, user_id=id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db_household_members = get_household_member_by_user_id_and_house_id(db, house_id=db_household.id, user_id=id)
+    if db_household_members is None:
+        raise HTTPException(status_code=404, detail="User is not a household member")
+    db.delete(db_household_members)
+    db.commit()
+    return db_user.id
 
 
 @router.post("/households/", response_model=household_schema.Household, tags=["households"])
@@ -66,6 +100,11 @@ def get_household_by_id(db: Session, house_id: int):
 
 def get_household_members_by_house_id(db: Session, house_id: int):
     return db.query(household_members.Member).filter(household_members.Member.hsme_hous_id == house_id).all()
+
+
+def get_household_member_by_user_id_and_house_id(db: Session, house_id: int, user_id: int):
+    return db.query(household_members.Member).filter(household_members.Member.hsme_hous_id == house_id,
+                                                     household_members.Member.hsme_user_id == user_id).first()
 
 
 def create_household(db: Session, house: household_schema.HouseholdCreate):
