@@ -37,6 +37,15 @@ def create_blob(name: str, file_name: str):
     return get_bucket().blob(f"{name}/{file_name}")
 
 
+def delete_file(name: str, file_name: str):
+    get_bucket().blob(f"{name}/{file_name}").delete()
+
+
+def delete_folder(name: str):
+    for blob in get_bucket().list_blobs(prefix=f"{name}/"):
+        blob.delete()
+
+
 def get_folder_files(name: str):
     client = storage.Client()
     buck = client.bucket(os.getenv("IMAGE_BUCKET"))
