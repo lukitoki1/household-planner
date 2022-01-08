@@ -9,6 +9,7 @@ from routers import members, users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
 import requests
+import os
 
 router = APIRouter()
 
