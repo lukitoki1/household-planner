@@ -8,9 +8,14 @@ from models import chore
 from routers import members, users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
+import httpx
+from starlette.responses import StreamingResponse
+from starlette.background import BackgroundTask
+import urllib.parse
+import json
 
 router = APIRouter()
-
+client = httpx.AsyncClient()
 
 @router.get("/households/{house_id}/chores", tags=["chores"])
 async def read_household_chores(house_id: int, name: Optional[str] = None, interval: Optional[int] = None,
@@ -34,6 +39,25 @@ async def read_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
     choreDto = create_chore_dto(db, db_chore)
     return choreDto
 
+@router.get("/chores/{chore_id}/description", tags=["chores"])
+async def read_chore_translation(chore_id: int, language: str, db: Session = Depends(get_db)):
+    #pobranie opisu z bazy
+    db_chore = get_chore_by_id(db, chore_id)
+    if db_chore is None:
+        raise HTTPException(status_code=404, detail="Chore not found")
+    choreDto = create_chore_dto(db, db_chore)
+    choreDesc = choreDto.description
+    #utworzenie url do zapytania mikroserwisu i wysłanie zapytania
+    text = urllib.parse.quote(choreDesc)
+    url = 'http://localhost:8080/api/translation?lang=' + str(language) + '&text=' + str(text)
+    res = await make_translation_request(url)
+    return res.json()
+
+async def make_translation_request(url: str):
+    req = client.build_request('get', url)
+    res = client.send(req)
+    #odbiór odpowiedzi
+    return await res
 
 def create_chore_dto(db, db_chore):
     household_id = db_chore.chor_hous_id
