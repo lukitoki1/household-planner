@@ -56,7 +56,7 @@ async def read_chore_translation(chore_id: int, language: str, db: Session = Dep
     choreDesc = choreDto.description
     # utworzenie url do zapytania mikroserwisu i wysłanie zapytania
     text = urllib.parse.quote(choreDesc)
-    url = f"{translation_service}?lang={language}&text={text}"
+    url = f"{translation_service}/api/translation?lang={language}&text={text}"
     res = await make_translation_request(url)
     if res.status_code < 200 or res.status_code > 299:
         res_det = json.loads(res.text)
