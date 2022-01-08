@@ -7,7 +7,6 @@ from google.cloud import translate_v2 as translate
 
 
 app = FastAPI()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="gtranslate-key.json"
 origins = ["*"]
 
 app.add_middleware(GZipMiddleware)
