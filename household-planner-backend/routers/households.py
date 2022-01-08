@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from starlette.requests import Request
 
 from db.database import get_db
 from operator import attrgetter
@@ -11,9 +12,11 @@ router = APIRouter()
 
 
 @router.get("/households/", tags=["households"])
-async def read_households(db: Session = Depends(get_db)):
-    db_households = get_households(db)
-    db_households.sort(key=attrgetter('id'))
+async def read_households(request: Request, db: Session = Depends(get_db)):
+    user_id = request.state.user_id
+
+    db_households = get_households_for_user(db, user_id)
+    db_households.sort(key=attrgetter('name'))
     return db_households
 
 
@@ -90,8 +93,9 @@ async def delete_household(house_id: int, db: Session = Depends(get_db)):
     return house_id
 
 
-def get_households(db: Session, skip: int = 0):
-    return db.query(household.Household).offset(skip).all()
+def get_households_for_user(db: Session, user_id: str, skip: int = 0):
+    return db.query(household.Household).join(household_members.Member).filter(
+        household_members.Member.hsme_user_id == user_id).offset(skip).all()
 
 
 def get_household_by_id(db: Session, house_id: int):

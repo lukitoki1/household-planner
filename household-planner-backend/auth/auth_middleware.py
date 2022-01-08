@@ -22,13 +22,14 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         try:
             if 'login' in str(request.url):
-                user_email = self.authenticate_token(request, True)
+                user_email, user_id = self.authenticate_token(request, True)
             else:
-                user_email = self.authenticate_token(request)
+                user_email, user_id = self.authenticate_token(request)
         except AuthenticationError:
             return self.on_error()
 
         request.state.user_email = user_email
+        request.state.user_id = user_id
         return await call_next(request)
 
     def authenticate_token(self, request: Request, register_if_not_exists: bool = False):
@@ -57,10 +58,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 raise AuthenticationError(self.default_error_message)
             else:
                 print(f"Creating user {user_email} with name {user_name}")
-                create_user(db, UserCreate(name=user_name, email=user_email))
+                user = create_user(db, UserCreate(name=user_name, email=user_email))
 
         db.close()
-        return user_email
+        return user_email, user.id
 
     def on_error(self):
         return JSONResponse({"error": "unauthorized"}, status_code=401)
