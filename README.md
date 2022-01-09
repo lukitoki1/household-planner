@@ -64,7 +64,7 @@ Jako relacyjną bazę danych wykorzystano PostgreSQL 13 oferowaną w usłudze Cl
 (wrażliwe na ekspozycję) przechowywano w usłudze Secret Manager. Zdjęcia obowiązku domowego przechowywano w dedykowanej
 przestrzeni dyskowej Cloud Storage. Do tłumaczenia opisu obowiązku domowego wykorzystano Translation API.
 
-W projekcie wykorzystano automatyzację wdrażania nowych wersji aplikacji za pomocą GitHub Actions. Architekruta chmurowa
+W projekcie wykorzystano automatyzację wdrażania nowych wersji aplikacji za pomocą GitHub Actions. Architektura chmurowa
 została opisana oraz zainicjalizowana za pomocą kodu Terraform.
 
 ## Struktura API
@@ -84,8 +84,8 @@ Podział zadań wyglądał następująco:
 * Łukasz Kamiński - Front-End, podział i opis zadań, dokumentacja,
 * Mateusz Kossakowski - Back-End (serwis główny),
 * Arkadiusz Michalak - Baza danych, film pokazowy,
-* Rafał Pachnia - Back-End (serwis główny, serwis do tłumaczeń),
-* Ernest Szypuła - Back-End (serwis do zdjęć), infrastruktura Terraform.
+* Rafał Pachnia - Back-End (serwis główny, serwis tłumaczeń),
+* Ernest Szypuła - Back-End (serwis zdjęć, serwis powiadomień), infrastruktura Terraform.
 
 ## Zaimplementowana funkcjonalność
 
