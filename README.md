@@ -128,7 +128,7 @@ cała infrastruktura została wygodnie powołana za pomocą Terraform, a zmiany 
 wersjonowanym kodzie.
 
 Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają jeszcze
-wygodniejszą praz jeszcze szybszą implementację.
+wygodniejszą oraz jeszcze szybszą implementację.
 
 ## Repozytoria
 
