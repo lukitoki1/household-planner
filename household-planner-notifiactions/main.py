@@ -64,7 +64,8 @@ def process(rs: Tuple):
 
     mail_tmp = get_mail_template()
 
-    next_occurence_date = calculate_next_occurence_date(chor_start_date, chor_occurence)
+    timezone = pytz.timezone('Europe/Warsaw')
+    next_occurence_date = calculate_next_occurence_date(chor_start_date, chor_occurence).replace(tzinfo=timezone)
     tmp = Template(mail_tmp.content).render(user_name=user_name, chor_name=chor_name,
                                             next_occurence_date=f"{next_occurence_date.hour:02d}:{next_occurence_date.minute:02d}",
                                             chor_description=chor_description)
