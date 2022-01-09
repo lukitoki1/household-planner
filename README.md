@@ -103,7 +103,7 @@ pozostałe punkty końcowe spodziewały się istnienia użytkownika w bazie i w 
 Zapewniono dodatkową walidację punktów końcowych:
 
 * użytkownik niebędący członkiem gospodarstwa domowego nie może uzyskać informacji o tym gospodarstwie,
-* nie da się przypisać użytkownika jak wykonawcy obowiązku domowego, jeśli nie jest on członkiem gospodarstwa domowego,
+* nie da się przypisać użytkownika jako wykonawcy obowiązku domowego, jeśli nie jest on członkiem gospodarstwa domowego,
 * usunięcie użytkownika z gospodarstwa domowego usuwa przypisanie go do wszystkich obowiązków domowych w tym
   gospodarstwie,
 * użytkownik na liście gospodarstw widzi tylko te, do których należy.
@@ -124,11 +124,11 @@ może tego zrobić). W ten sposób zawsze istnieje co najmniej jeden użytkownik
 Realizacja projektu w oparciu o rozwiązania chmurowe przebiegła szybko i bezproblemowo. Serwisy AppEngine są łatwe we
 wdrażaniu oraz umożliwiają rozsądne automatyczne skalowanie. Dzięki podejściu pay-as-you-go zespół nie musiał martwić
 się o koszty nieużywanej infrastruktury. Nie było również konieczności szukania maszyn mogących hostować rozwiązania -
-cała infrastruktura została wygodnie powołana za pomocą kodu Terraform i jej zmiany są odzwierciedlane w wersjonowanym
-kodzie.
+cała infrastruktura została wygodnie powołana za pomocą Terraform, a zmiany są na bieżąco odzwierciedlane w
+wersjonowanym kodzie.
 
-Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają
-przyspieszenie implementacji.
+Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają jeszcze
+wygodniejszą praz jeszcze szybszą implementację.
 
 ## Repozytoria
 
