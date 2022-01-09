@@ -68,7 +68,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-appengine@v0.2.0
         with:
-          working_directory: ./household-planner-notifications
-          deliverables: ./household-planner-notifications/app.yaml
+          working_directory: ./household-planner-notifiactions
+          deliverables: ./household-planner-notifiactions/app.yaml
           project_id: ${{ secrets.GCP_PROJECT }}
           credentials: ${{ secrets.GCP_CREDENTIALS }}
