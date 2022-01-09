@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+import routers.households
 from db.database import get_db
 from models import chore, household_members
-from routers import members, users, households
+from routers import users, households
 from schemas import household_schema, user_schema, chores_schema
 from typing import Optional
 import httpx
@@ -243,7 +244,7 @@ def get_householdDto_for_chore_by_id(db: Session, house_id: int):
 
 
 def get_user_id_from_house_members(db: Session, house_mem_id: int):
-    db_member = members.get_member_by_id(db, house_mem_id)
+    db_member = routers.households.get_household_member_by_id(db, house_mem_id)
     if db_member is None:
         return None
     return db_member.hsme_user_id

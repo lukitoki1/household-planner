@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from db.database import get_db
 from operator import attrgetter
-from models import household, household_members, user as usermodel, chore
+from models import household, household_members, user as usermodel, chore, household_members as hm
 from schemas import household_schema, members_schema
 from routers import users
 import os
@@ -236,3 +236,7 @@ def delete_household_members(db: Session, house_id: int):
 
 def get_chores_by_hsme_id(db: Session, hsme_id: int):
     return db.query(chore.Chore).filter(chore.Chore.chor_hsme_id == hsme_id).all()
+
+
+def get_household_member_by_id(db: Session, member_id: int):
+    return db.query(hm.Member).filter(hm.Member.id == member_id).first()
