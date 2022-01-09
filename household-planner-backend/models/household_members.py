@@ -13,3 +13,4 @@ class Member(Base):
     id = Column("hsme_id", Integer, primary_key=True, index=True)
     hsme_hous_id = Column("hsme_hous_id", Integer, ForeignKey("households.hous_id"))
     hsme_user_id = Column("hsme_user_id", Integer, ForeignKey("users.user_id"))
+    is_owner = Column("is_owner", Integer)

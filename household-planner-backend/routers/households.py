@@ -4,42 +4,48 @@ from starlette.requests import Request
 
 from db.database import get_db
 from operator import attrgetter
-from models import household, household_members, user
-from schemas import household_schema
+from models import household, household_members, user as usermodel
+from schemas import household_schema, members_schema
 from routers import users
 
 router = APIRouter()
 
-
 @router.get("/households/", tags=["households"])
 async def read_households(request: Request, db: Session = Depends(get_db)):
-    user_id = request.state.user_id
-
+    user_id = get_user_id_from_request(request)
     db_households = get_households_for_user(db, user_id)
     db_households.sort(key=attrgetter('name'))
     return db_households
 
 
 @router.get("/households/{house_id}", tags=["households"])
-async def read_household(house_id: int, db: Session = Depends(get_db)):
+async def read_household(request: Request, house_id: int, db: Session = Depends(get_db)):
     db_household = get_household_by_id(db, house_id=house_id)
     if db_household is None:
         raise HTTPException(status_code=404, detail="Household not found")
+    if not check_household_membership(request, db, house_id):
+        raise HTTPException(status_code=403, detail="Not a house member")
     return db_household
 
 
 @router.get("/households/{house_id}/members", tags=["households"])
-async def read_household_members(house_id: int, db: Session = Depends(get_db)):
+async def read_household_members(request: Request, house_id: int, db: Session = Depends(get_db)):
     db_household = get_household_by_id(db, house_id=house_id)
     if db_household is None:
         raise HTTPException(status_code=404, detail="Household not found")
+    if not check_household_membership(request, db, house_id):
+        raise HTTPException(status_code=403, detail="Not a house member")
     db_household_members = get_household_members_by_house_id(db, house_id=db_household.id)
-    mem_ids_list = [member.hsme_user_id for member in db_household_members]
-    return db.query(user.User).filter(user.User.id.in_(mem_ids_list)).all()
+    user_list = []
+    for elem in db_household_members:
+        user = db.query(usermodel.User).filter(usermodel.User.id == elem.hsme_user_id).first()
+        member_dto = members_schema.MemberDTO(user.id, user.name, user.email, elem.is_owner)
+        user_list.append(member_dto)
+    return user_list
 
 
 @router.post("/households/{house_id}/members", tags=["households"])
-async def post_household_member(house_id: int, email: str, db: Session = Depends(get_db)):
+async def post_household_member(request: Request, house_id: int, email: str, db: Session = Depends(get_db)):
     if email is None:
         raise HTTPException(status_code=400, detail="No email parameter")
     db_household = get_household_by_id(db, house_id=house_id)
@@ -48,6 +54,8 @@ async def post_household_member(house_id: int, email: str, db: Session = Depends
     db_user = users.get_user_by_email(db, email)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    if not check_household_membership(request, db, house_id):
+        raise HTTPException(status_code=403, detail="Not a house member")
     db_member = household_members.Member(hsme_hous_id=db_household.id, hsme_user_id=db_user.id)
     db.add(db_member)
     db.commit()
@@ -56,7 +64,7 @@ async def post_household_member(house_id: int, email: str, db: Session = Depends
 
 
 @router.delete("/households/{house_id}/members", tags=["households"])
-async def delete_household_member(house_id: int, id: int, db: Session = Depends(get_db)):
+async def delete_household_member(request: Request, house_id: int, id: int, db: Session = Depends(get_db)):
     db_household = get_household_by_id(db, house_id=house_id)
     if db_household is None:
         raise HTTPException(status_code=404, detail="Household not found")
@@ -66,19 +74,27 @@ async def delete_household_member(house_id: int, id: int, db: Session = Depends(
     db_household_members = get_household_member_by_user_id_and_house_id(db, house_id=db_household.id, user_id=id)
     if db_household_members is None:
         raise HTTPException(status_code=404, detail="User is not a household member")
+    if check_household_ownership(request, db, house_id, id):
+            raise HTTPException(status_code=403, detail="You can not delete house owner!")
     db.delete(db_household_members)
     db.commit()
     return db_user.id
 
 
 @router.post("/households/", response_model=household_schema.Household, tags=["households"])
-async def create_household(household_create: household_schema.HouseholdCreate, db: Session = Depends(get_db)):
-    return create_household(db=db, house=household_create)
+async def create_household(request: Request, household_create: household_schema.HouseholdCreate, db: Session = Depends(get_db)):
+    created = create_household(request=request, db=db, house=household_create)
+    if created is None:
+        raise HTTPException(status_code=404, detail="Household creation error!")
+    return created
 
 
 @router.put("/households/{house_id}", tags=["households"])
-async def put_household(house_id: int, household_update: household_schema.HouseholdCreate,
+async def put_household(request: Request, house_id: int, household_update: household_schema.HouseholdCreate,
                         db: Session = Depends(get_db)):
+    if not check_household_membership(request, db, house_id):
+        if not check_household_ownership(request, db, house_id, -1):
+            raise HTTPException(status_code=403, detail="Not a house member")
     house_upadted = update_household(db=db, house=household_update, house_id=house_id)
     if house_upadted is None:
         raise HTTPException(status_code=404, detail="Household not found")
@@ -86,7 +102,10 @@ async def put_household(house_id: int, household_update: household_schema.Househ
 
 
 @router.delete("/households/{house_id}", tags=["households"])
-async def delete_household(house_id: int, db: Session = Depends(get_db)):
+async def delete_household(request: Request, house_id: int, db: Session = Depends(get_db)):
+    if not check_household_membership(request, db, house_id):
+        if not check_household_ownership(request, db, house_id):
+            raise HTTPException(status_code=403, detail="Not a house owner")
     deleted = delete_household_by_id(db, house_id)
     if deleted is False:
         raise HTTPException(status_code=404, detail="Household not found")
@@ -111,12 +130,15 @@ def get_household_member_by_user_id_and_house_id(db: Session, house_id: int, use
                                                      household_members.Member.hsme_user_id == user_id).first()
 
 
-def create_household(db: Session, house: household_schema.HouseholdCreate):
+def create_household(request: Request, db: Session, house: household_schema.HouseholdCreate):
     db_house = household.Household(name=house.name)
     db.add(db_house)
     db.commit()
     db.refresh(db_house)
-    return db_house
+    if create_owner(request, db, db_house.id):
+        return db_house
+    else:
+        return None
 
 
 def update_household(db, house, house_id):
@@ -138,4 +160,35 @@ def delete_household_by_id(db: Session, house_id: int):
         return False
     db.delete(db_house)
     db.commit()
+    return True
+
+def get_user_id_from_request(request: Request):
+    user_id = 5
+    # user_id = request.state.user_id
+    return user_id
+
+def check_household_membership(request: Request, db: Session, house_id: int):
+    db_household_members = get_household_members_by_house_id(db, house_id=house_id)
+    mem_ids_list = [member.hsme_user_id for member in db_household_members]
+    user_id = get_user_id_from_request(request)
+    if user_id not in mem_ids_list:
+        return False
+    return True
+
+def check_household_ownership(request: Request, db: Session, house_id: int):
+    db_household_members = get_household_members_by_house_id(db, house_id=house_id)
+    user_id = get_user_id_from_request(request)
+    match = [elem for elem in db_household_members if elem.hsme_user_id==user_id]
+    if match.is_owner != 1:
+        return False
+    return True
+
+def create_owner(request: Request, db: Session, house_id: int, user_id: int):
+    if user_id == -1:
+        user_id = get_user_id_from_request(request)
+    member_user = db.query(usermodel.User).filter(usermodel.User.id == user_id).first()
+    db_member = household_members.Member(hsme_hous_id=house_id, hsme_user_id=member_user.id, is_owner=1)
+    db.add(db_member)
+    db.commit()
+    db.refresh(db_member)
     return True
