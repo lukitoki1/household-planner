@@ -67,10 +67,6 @@ przestrzeni dyskowej Cloud Storage. Do tłumaczenia opisu obowiązku domowego wy
 W projekcie wykorzystano automatyzację wdrażania nowych wersji aplikacji za pomocą GitHub Actions. Architektura chmurowa
 została opisana oraz zainicjalizowana za pomocą kodu Terraform.
 
-## Struktura API
-
-TODO: screen ze swaggera
-
 ## Sposób realizacji
 
 Projekt został zrealizowany w zespole 5-osobowym. Faza przed implementacją (założenia architektoniczne, przypadki
@@ -137,4 +133,42 @@ Projekt był realizowany w repozytoriach dedykowanych przechowywaniu określonyc
 * https://github.com/lukitoki1/household-planner - Back-End aplikacji
 * https://github.com/lukitoki1/household-planner-frontend - Front-End aplikacji
 * https://github.com/ErnestSzypula/household-planner-terraform - Terraform infrastruktury aplikacji
+
+# Dodatkowe informacje
+
+## Struktura API
+
+Zaprezentowane zrzuty ekranu pochodzą z narzędzia Swagger.
+
+![Struktura API users](./doc/final/swagger/users.png)
+
+Grupa punktów końcowych odpowiedzialna za rejestrację i logowanie użytkownika, a także za zmianę jego danych
+kontaktowych (imię i nazwisko).
+
+![Struktura API households](./doc/final/swagger/households.png)
+
+Grupa punktów końcowych obsługująca gospodarstwa domowe. Umożliwia tworzenie, edytowanie i usuwanie gospodarstwa, a
+także pobieranie listy gospodarstw użytkownika oraz pubieranie szczegółów gospodarstwa.
+
+![Struktura API household_members](./doc/final/swagger/household_members.png)
+
+Punkty końcowe umożliwiające zarządzanie członkami gospodarstwa: pobieranie listy, dodawanie, usuwanie.
+
+![Struktura API chores](./doc/final/swagger/chores.png)
+
+Punkty końcowe obsługujące obowiązki domowe. Umożliwiają pobranie listy obowiązków dla gospodarstwa,
+utworzenie/edycję/usunięcie obowiązku, pobranie szczegółów obowiązku, a także przypisanie oraz usunięcie przypisania
+użytkownika.
+
+![Struktura API chore_photos](./doc/final/swagger/chore_photos.png)
+
+Grupa punktów końcowych odpowiadających za galerię zdjęć obowiązku domowego. Jedno zdjęcie reprezentowane jest przez
+obiekt zawierający nazwę zdjęcia oraz podpisany URL do zdjęcia z krótkim czasem życia. Phnkty końcowe umożliwiają
+pobranie listy zdjęć, pobranie/usunięcie zdjęcia oraz umieszczenie nowego zdjęcia.
+
+![Struktura API chore_translation](./doc/final/swagger/chore_translation.png)
+
+Punkt końcowy odpowiadający za tłumaczenie opisu obowiązku domowego. Jeśli żądanie dotyczy opisu obowiązku w języku
+oryginalnym, zwraca oryginalny opis (pomija tłumaczenie).
+
 
