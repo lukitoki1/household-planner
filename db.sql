@@ -7,3 +7,5 @@ ALTER TABLE users DROP COLUMN user_notification_email;
 ALTER TABLE  household_members ADD CONSTRAINT ix_hous_user_id_unique UNIQUE (hsme_hous_id, hsme_user_id);
 
 ALTER TABLE chores ALTER chor_start_date TYPE timestamptz USING chor_start_date AT TIME ZONE 'UTC';
+
+ALTER TABLE chores ADD COLUMN chore_last_notification_sent_at TIMESTAMP WITH TIMEZONE;
