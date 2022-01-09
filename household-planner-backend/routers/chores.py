@@ -99,6 +99,11 @@ async def delete_chore_by_id(chore_id: int, db: Session = Depends(get_db)):
     deleted = delete_chore_by_id(db, chore_id)
     if deleted is False:
         raise HTTPException(status_code=404, detail="Chore not found")
+    response = requests.delete(
+        f"{photo_service}/photos/chores/{chore_id}/photos")
+    if response.status_code != status.HTTP_200_OK:
+        raise HTTPException(status_code=response.status_code)
+
     return chore_id
 
 

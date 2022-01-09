@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
@@ -7,8 +7,12 @@ from operator import attrgetter
 from models import household, household_members, user, chore
 from schemas import household_schema
 from routers import users
+import os
+import requests
 
 router = APIRouter()
+
+photo_service = os.getenv("PHOTOS_SERVICE")
 
 
 @router.get("/households/", tags=["households"])
@@ -91,9 +95,13 @@ async def put_household(house_id: int, household_update: household_schema.Househ
 
 @router.delete("/households/{house_id}", tags=["households"])
 async def delete_household(house_id: int, db: Session = Depends(get_db)):
-    deleted = delete_household_by_id(db, house_id)
-    if deleted is False:
+    db_house = db.query(household.Household).filter(household.Household.id == house_id).first()
+    if db_house is None:
         raise HTTPException(status_code=404, detail="Household not found")
+    delete_household_chores(db, house_id)
+    delete_household_members(db, house_id)
+    db.delete(db_house)
+    db.commit()
     return house_id
 
 
@@ -143,6 +151,24 @@ def delete_household_by_id(db: Session, house_id: int):
     db.delete(db_house)
     db.commit()
     return True
+
+
+def delete_household_chores(db: Session, house_id: int):
+    house_chores = db.query(chore.Chore).filter(chore.Chore.chor_hous_id == house_id).all()
+    for h_chore in house_chores:
+        db.delete(h_chore)
+        response = requests.delete(
+            f"{photo_service}/photos/chores/{h_chore.id}/photos")
+        if response.status_code != status.HTTP_200_OK:
+            raise HTTPException(status_code=response.status_code)
+    db.commit()
+
+
+def delete_household_members(db: Session, house_id: int):
+    found_members = db.query(household_members.Member).filter(household_members.Member.hsme_hous_id == house_id).all()
+    for member in found_members:
+        db.delete(member)
+    db.commit()
 
 
 def get_chores_by_hsme_id(db: Session, hsme_id: int):
