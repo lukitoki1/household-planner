@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from db.database import get_db
 from operator import attrgetter
-from models import household, household_members, user as usermodel
+from models import household, household_members, user as usermodel, chore
 from schemas import household_schema, members_schema
 from routers import users
 
@@ -76,6 +76,10 @@ async def delete_household_member(request: Request, house_id: int, id: int, db: 
         raise HTTPException(status_code=404, detail="User is not a household member")
     if check_household_ownership(request, db, house_id, id):
             raise HTTPException(status_code=403, detail="You can not delete house owner!")
+    db_member_chores = get_chores_by_hsme_id(db, hsme_id=db_household_members.id)
+    for member_chore in db_member_chores:
+        member_chore.chor_hsme_id = None
+        db.add(member_chore)
     db.delete(db_household_members)
     db.commit()
     return db_user.id
@@ -192,3 +196,6 @@ def create_owner(request: Request, db: Session, house_id: int, user_id: int):
     db.commit()
     db.refresh(db_member)
     return True
+
+def get_chores_by_hsme_id(db: Session, hsme_id: int):
+    return db.query(chore.Chore).filter(chore.Chore.chor_hsme_id == hsme_id).all()
