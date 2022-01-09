@@ -13,7 +13,7 @@ w całości w oparciu o usługi dostępne w Google Cloud Platform (GCP).
 ## Przypadki użycia
 
 Aplikacja "Household Planner" służy do zarządzania obowiązakmi domowymi w gospodarstwie użytkownika. Do logowania oraz
-rejestracji wykorztywane jest Konto Google.
+rejestracji wykorzystywane jest Konto Google.
 
 ![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)
 
@@ -40,6 +40,9 @@ spośród członków gospodarstwa domowego. Istnieje również możliwość edyc
 
 Każdy obowiązek domowy posiada album zdjęć. Zdjęcia można wyświetlić, dodać oraz usunąć.
 
+Oprócz funkcjonalności zaprezentowanej na diagramach przypadków użycia, aplikacja posiada funkcję powiadamiania o
+nadchodzących obowiązkach domowych przypisanych do użytkownika poprzez powiadomienia e-mail.
+
 ## Architektura i wykorzystane technologie
 
 ![Diagram architektury](./doc/final/architecture.png)
@@ -53,8 +56,9 @@ Front-End aplikacji był serwowany przez dedykowany serwis zwracający dostarczo
 
 Back-End aplikacji był złożony z serwisów działających w środowisku uruchomieniowym Python. Wśród serwisów Back-Endowych
 wyróżnić można serwis główny (default) odpowiadający za komunikację z aplikacją Front-End oraz serwisy realizujące
-fragmenty funkcjonalności, wywoływane przez serwis główny. Wyjątek stanowi serwis odpowiadający za powiadomienia e-mail,
-gdyż był on wywoływany cyklicznie przez Cloud Scheduler i nie udostępniał API dla aplikacji Front-End.
+fragmenty funkcjonalności (obsługa zdjęć, obsługa tłumaczeń), wywoływane przez serwis główny. Wyjątek stanowi serwis
+odpowiadający za powiadomienia e-mail, gdyż był on wywoływany cyklicznie przez Cloud Scheduler i nie udostępniał API dla
+aplikacji Front-End.
 
 Jako relacyjną bazę danych wykorzystano PostgreSQL 13 oferowaną w usłudze Cloud SQL. Dane sekretne
 (wrażliwe na ekspozycję) przechowywano w usłudze Secret Manager. Zdjęcia obowiązku domowego przechowywano w dedykowanej
@@ -85,7 +89,7 @@ Podział zadań wyglądał następująco:
 
 ## Zaimplementowana funkcjonalność
 
-TODO: screeny z apki
+TODO: screeny z apki, screen powiadomienia e-mail
 
 ## Wyzwania
 
