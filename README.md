@@ -13,7 +13,7 @@ w całości w oparciu o usługi dostępne w Google Cloud Platform (GCP).
 ## Przypadki użycia
 
 Aplikacja "Household Planner" służy do zarządzania obowiązakmi domowymi w gospodarstwie użytkownika. Do logowania oraz
-rejestracji wykorztywane jest Konto Google.
+rejestracji wykorzystywane jest Konto Google.
 
 ![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)
 
@@ -40,6 +40,9 @@ spośród członków gospodarstwa domowego. Istnieje również możliwość edyc
 
 Każdy obowiązek domowy posiada album zdjęć. Zdjęcia można wyświetlić, dodać oraz usunąć.
 
+Oprócz funkcjonalności zaprezentowanej na diagramach przypadków użycia, aplikacja posiada funkcję powiadamiania o
+nadchodzących obowiązkach domowych przypisanych do użytkownika poprzez powiadomienia e-mail.
+
 ## Architektura i wykorzystane technologie
 
 ![Diagram architektury](./doc/final/architecture.png)
@@ -53,14 +56,15 @@ Front-End aplikacji był serwowany przez dedykowany serwis zwracający dostarczo
 
 Back-End aplikacji był złożony z serwisów działających w środowisku uruchomieniowym Python. Wśród serwisów Back-Endowych
 wyróżnić można serwis główny (default) odpowiadający za komunikację z aplikacją Front-End oraz serwisy realizujące
-fragmenty funkcjonalności, wywoływane przez serwis główny. Wyjątek stanowi serwis odpowiadający za powiadomienia e-mail,
-gdyż był on wywoływany cyklicznie przez Cloud Scheduler i nie udostępniał API dla aplikacji Front-End.
+fragmenty funkcjonalności (obsługa zdjęć, obsługa tłumaczeń), wywoływane przez serwis główny. Wyjątek stanowi serwis
+odpowiadający za powiadomienia e-mail, gdyż był on wywoływany cyklicznie przez Cloud Scheduler i nie udostępniał API dla
+aplikacji Front-End.
 
 Jako relacyjną bazę danych wykorzystano PostgreSQL 13 oferowaną w usłudze Cloud SQL. Dane sekretne
 (wrażliwe na ekspozycję) przechowywano w usłudze Secret Manager. Zdjęcia obowiązku domowego przechowywano w dedykowanej
 przestrzeni dyskowej Cloud Storage. Do tłumaczenia opisu obowiązku domowego wykorzystano Translation API.
 
-W projekcie wykorzystano automatyzację wdrażania nowych wersji aplikacji za pomocą GitHub Actions. Architekruta chmurowa
+W projekcie wykorzystano automatyzację wdrażania nowych wersji aplikacji za pomocą GitHub Actions. Architektura chmurowa
 została opisana oraz zainicjalizowana za pomocą kodu Terraform.
 
 ## Struktura API
@@ -80,12 +84,12 @@ Podział zadań wyglądał następująco:
 * Łukasz Kamiński - Front-End, podział i opis zadań, dokumentacja,
 * Mateusz Kossakowski - Back-End (serwis główny),
 * Arkadiusz Michalak - Baza danych, film pokazowy,
-* Rafał Pachnia - Back-End (serwis główny, serwis do tłumaczeń),
-* Ernest Szypuła - Back-End (serwis do zdjęć), infrastruktura Terraform.
+* Rafał Pachnia - Back-End (serwis główny, serwis tłumaczeń),
+* Ernest Szypuła - Back-End (serwis zdjęć, serwis powiadomień), infrastruktura Terraform.
 
 ## Zaimplementowana funkcjonalność
 
-TODO: screeny z apki
+TODO: screeny z apki, screen powiadomienia e-mail
 
 ## Wyzwania
 
@@ -99,7 +103,7 @@ pozostałe punkty końcowe spodziewały się istnienia użytkownika w bazie i w 
 Zapewniono dodatkową walidację punktów końcowych:
 
 * użytkownik niebędący członkiem gospodarstwa domowego nie może uzyskać informacji o tym gospodarstwie,
-* nie da się przypisać użytkownika jak wykonawcy obowiązku domowego, jeśli nie jest on członkiem gospodarstwa domowego,
+* nie da się przypisać użytkownika jako wykonawcy obowiązku domowego, jeśli nie jest on członkiem gospodarstwa domowego,
 * usunięcie użytkownika z gospodarstwa domowego usuwa przypisanie go do wszystkich obowiązków domowych w tym
   gospodarstwie,
 * użytkownik na liście gospodarstw widzi tylko te, do których należy.
@@ -120,11 +124,11 @@ może tego zrobić). W ten sposób zawsze istnieje co najmniej jeden użytkownik
 Realizacja projektu w oparciu o rozwiązania chmurowe przebiegła szybko i bezproblemowo. Serwisy AppEngine są łatwe we
 wdrażaniu oraz umożliwiają rozsądne automatyczne skalowanie. Dzięki podejściu pay-as-you-go zespół nie musiał martwić
 się o koszty nieużywanej infrastruktury. Nie było również konieczności szukania maszyn mogących hostować rozwiązania -
-cała infrastruktura została wygodnie powołana za pomocą kodu Terraform i jej zmiany są odzwierciedlane w wersjonowanym
-kodzie.
+cała infrastruktura została wygodnie powołana za pomocą Terraform, a zmiany są na bieżąco odzwierciedlane w
+wersjonowanym kodzie.
 
-Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają
-przyspieszenie implementacji.
+Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają jeszcze
+wygodniejszą oraz jeszcze szybszą implementację.
 
 ## Repozytoria
 
