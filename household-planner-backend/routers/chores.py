@@ -2,6 +2,7 @@ from datetime import timedelta, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from db.database import get_db
 from models import chore, household_members
@@ -28,7 +29,7 @@ async def read_household_chores(request: Request, house_id: int, name: Optional[
     db_chores = get_household_chores(db, house_id, name, interval)
     if db_chores is None:
         raise HTTPException(status_code=404, detail="Chores not found")
-    if check_household_membership(request, db, house_id):
+    if not check_household_membership(request, db, house_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     chores_dtos_list = []
     for chore in db_chores:
@@ -42,7 +43,7 @@ async def read_chore_by_id(request: Request, chore_id: int, db: Session = Depend
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    if check_household_membership(request, db, house_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     choreDto = create_chore_dto(db, db_chore)
     return choreDto
@@ -54,13 +55,15 @@ async def read_chore_translation(request: Request, chore_id: int, language: str,
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    if check_household_membership(request, db, chore_id.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     choreDto = create_chore_dto(db, db_chore)
     choreDesc = choreDto.description
     # utworzenie url do zapytania mikroserwisu i wysłanie zapytania
     text = urllib.parse.quote(choreDesc)
     url = f"{translation_service}/api/translation?lang={language}&text={text}"
+    print(text)
+    print(url)
     res = await make_translation_request(url)
     if res.status_code < 200 or res.status_code > 299:
         res_det = json.loads(res.text)
@@ -77,7 +80,7 @@ async def make_translation_request(url: str):
 
 @router.post("/households/{house_id}/chores", tags=["chores"])
 async def post_chore(request: Request, house_id: int, chore_create: chores_schema.ChoreCreate, db: Session = Depends(get_db)):
-    if check_household_membership(request, db, house_id):
+    if not check_household_membership(request, db, house_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     return create_chore(house_id, chore_create, db)
 
@@ -87,7 +90,7 @@ async def assign_user_to_chore(request: Request, chore_id: int, email: str, db: 
     if email is None:
         raise HTTPException(status_code=400, detail="No email parameter")
     db_chore = get_chore_by_id(db, chore_id)
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     return add_user_to_chore(chore_id, email, db)
 
@@ -95,7 +98,7 @@ async def assign_user_to_chore(request: Request, chore_id: int, email: str, db: 
 @router.delete("/chores/{chore_id}/assignee", tags=["chores"])
 async def remove_user_from_chore(request: Request, chore_id: int, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     return delete_chore_assignee(chore_id, db)
 
@@ -103,7 +106,7 @@ async def remove_user_from_chore(request: Request, chore_id: int, db: Session = 
 @router.put("/chores/{chore_id}", tags=["chores"])
 async def put_chore(request: Request, chore_id: int, chore_edit: chores_schema.ChoreEdit, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     db_chore = update_chore(chore_id, chore_edit, db)
     if db_chore is None:
@@ -113,12 +116,16 @@ async def put_chore(request: Request, chore_id: int, chore_edit: chores_schema.C
 
 @router.delete("/chores/{chore_id}", tags=["chores"])
 async def delete_chore_by_id(request: Request, chore_id: int, db: Session = Depends(get_db)):
+    db_chore = get_chore_by_id(db, chore_id)
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
+        raise HTTPException(status_code=403, detail="Not a house member")
     deleted = delete_chore_by_id(db, chore_id)
     if deleted is False:
         raise HTTPException(status_code=404, detail="Chore not found")
-    db_chore = get_chore_by_id(db, chore_id)
-    if check_household_membership(request, db, db_chore.chor_hous_id):
-        raise HTTPException(status_code=403, detail="Not a house member")
+    response = requests.delete(
+        f"{photo_service}/photos/chores/{chore_id}/photos")
+    if response.status_code != status.HTTP_200_OK:
+        raise HTTPException(status_code=response.status_code)
     return chore_id
 
 
@@ -127,7 +134,7 @@ async def upload_photo(request: Request, chore_id: int, db: Session = Depends(ge
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     content = await photo.read()
     response = requests.post(f"{photo_service}/photos/chores/{chore_id}/photos",
@@ -142,7 +149,7 @@ async def get_photos(request: Request, chore_id: int, db: Session = Depends(get_
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     response = requests.get(
         f"{photo_service}/photos/chores/{chore_id}/photos")
@@ -158,7 +165,7 @@ async def get_photo(request: Request, chore_id: int, file_name: str, db: Session
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     response = requests.get(
         f"{photo_service}/photos/chores/{chore_id}/photos/{file_name}")
@@ -174,7 +181,7 @@ async def delete_photo(request: Request, chore_id: int, file_name: str, db: Sess
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
         raise HTTPException(status_code=404, detail="Chore not found")
-    if check_household_membership(request, db, db_chore.chor_hous_id):
+    if not check_household_membership(request, db, db_chore.chor_hous_id):
         raise HTTPException(status_code=403, detail="Not a house member")
     response = requests.delete(
         f"{photo_service}/photos/chores/{chore_id}/photos/{file_name}")
@@ -249,7 +256,7 @@ def get_household_chores(db: Session, house_id: int, name: Optional[str] = None,
     db_chore_query = db.query(chore.Chore).filter(chore.Chore.chor_hous_id == house_id)
     if name is not None:
         stripped_name = name.strip()
-        db_chore_query = db_chore_query.filter(chore.Chore.chor_name.contains(stripped_name))
+        db_chore_query = db_chore_query.filter(func.lower(chore.Chore.chor_name).contains(func.lower(stripped_name)))
     if interval is not None:
         db_chore_query = db_chore_query.filter(chore.Chore.chor_occurence == interval)
 
@@ -337,8 +344,8 @@ def delete_chore_assignee(chore_id: int, db: Session):
 
 #Check household membership
 def get_user_id_from_request(request: Request):
-    user_id = 5
-    # user_id = request.state.user_id
+    # user_id = 1
+    user_id = request.state.user_id
     return user_id
 
 def get_household_members_by_house_id(db: Session, house_id: int):

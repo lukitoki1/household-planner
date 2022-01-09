@@ -116,8 +116,8 @@ def check_household_ownership(request: Request, db: Session, house_id: int, user
 
 
 def get_user_id_from_request(request: Request):
-    user_id = 5
-    # user_id = request.state.user_id
+    # user_id = 1
+    user_id = request.state.user_id
     return user_id
 
 
