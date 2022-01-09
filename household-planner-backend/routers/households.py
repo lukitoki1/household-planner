@@ -81,8 +81,6 @@ async def delete_household_member(request: Request, house_id: int, id: int, db: 
         raise HTTPException(status_code=404, detail="User is not a household member")
     if check_household_ownership(request, db, house_id, id):
         raise HTTPException(status_code=403, detail="You can not delete house owner!")
-    if not check_household_ownership(request, db, house_id, -1):
-        raise HTTPException(status_code=403, detail="You are not house owner!")
     db_member_chores = get_chores_by_hsme_id(db, hsme_id=db_household_members.id)
     for member_chore in db_member_chores:
         member_chore.chor_hsme_id = None
