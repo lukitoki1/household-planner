@@ -63,6 +63,10 @@ przestrzeni dyskowej Cloud Storage. Do tłumaczenia opisu obowiązku domowego wy
 W projekcie wykorzystano automatyzację wdrażania nowych wersji aplikacji za pomocą GitHub Actions. Architekruta chmurowa
 została opisana oraz zainicjalizowana za pomocą kodu Terraform.
 
+## Struktura API
+
+TODO: screen ze swaggera
+
 ## Sposób realizacji
 
 Projekt został zrealizowany w zespole 5-osobowym. Faza przed implementacją (założenia architektoniczne, przypadki
@@ -81,7 +85,7 @@ Podział zadań wyglądał następująco:
 
 ## Zaimplementowana funkcjonalność
 
-screeny z apki
+TODO: screeny z apki
 
 ## Wyzwania
 
