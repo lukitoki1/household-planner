@@ -2,6 +2,7 @@ from datetime import timedelta, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from db.database import get_db
 from models import chore, household_members
@@ -230,7 +231,7 @@ def get_household_chores(db: Session, house_id: int, name: Optional[str] = None,
     db_chore_query = db.query(chore.Chore).filter(chore.Chore.chor_hous_id == house_id)
     if name is not None:
         stripped_name = name.strip()
-        db_chore_query = db_chore_query.filter(chore.Chore.chor_name.contains(stripped_name))
+        db_chore_query = db_chore_query.filter(func.lower(chore.Chore.chor_name).contains(func.lower(stripped_name)))
     if interval is not None:
         db_chore_query = db_chore_query.filter(chore.Chore.chor_occurence == interval)
 
