@@ -33,7 +33,7 @@ async def read_household(request: Request, house_id: int, db: Session = Depends(
     return db_household
 
 
-@router.get("/households/{house_id}/members", tags=["households"])
+@router.get("/households/{house_id}/members", tags=["household-members"])
 async def read_household_members(request: Request, house_id: int, db: Session = Depends(get_db)):
     db_household = get_household_by_id(db, house_id=house_id)
     if db_household is None:
@@ -49,7 +49,7 @@ async def read_household_members(request: Request, house_id: int, db: Session = 
     return user_list
 
 
-@router.post("/households/{house_id}/members", tags=["households"])
+@router.post("/households/{house_id}/members", tags=["household-members"])
 async def post_household_member(request: Request, house_id: int, email: str, db: Session = Depends(get_db)):
     if email is None:
         raise HTTPException(status_code=400, detail="No email parameter")
@@ -68,7 +68,7 @@ async def post_household_member(request: Request, house_id: int, email: str, db:
     return db_member
 
 
-@router.delete("/households/{house_id}/members", tags=["households"])
+@router.delete("/households/{house_id}/members", tags=["household-members"])
 async def delete_household_member(request: Request, house_id: int, id: int, db: Session = Depends(get_db)):
     db_household = get_household_by_id(db, house_id=house_id)
     if db_household is None:

@@ -49,7 +49,7 @@ async def read_chore_by_id(request: Request, chore_id: int, db: Session = Depend
     return choreDto
 
 
-@router.get("/chores/{chore_id}/description", tags=["chores"])
+@router.get("/chores/{chore_id}/description", tags=["chore-translation"])
 async def read_chore_translation(request: Request, chore_id: int, language: str, db: Session = Depends(get_db)):
     # pobranie opisu z bazy
     db_chore = get_chore_by_id(db, chore_id)
@@ -129,7 +129,7 @@ async def delete_chore_by_id(request: Request, chore_id: int, db: Session = Depe
     return chore_id
 
 
-@router.post("/chores/{chore_id}/photos", tags=["chores"], status_code=status.HTTP_200_OK)
+@router.post("/chores/{chore_id}/photos", tags=["chore-photos"], status_code=status.HTTP_200_OK)
 async def upload_photo(request: Request, chore_id: int, db: Session = Depends(get_db), photo: UploadFile = File(...)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
@@ -144,7 +144,7 @@ async def upload_photo(request: Request, chore_id: int, db: Session = Depends(ge
         raise HTTPException(status_code=response.status_code)
 
 
-@router.get("/chores/{chore_id}/photos", tags=["chores"])
+@router.get("/chores/{chore_id}/photos", tags=["chore-photos"])
 async def get_photos(request: Request, chore_id: int, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
@@ -160,7 +160,7 @@ async def get_photos(request: Request, chore_id: int, db: Session = Depends(get_
     return response.json()
 
 
-@router.get("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
+@router.get("/chores/{chore_id}/photos/{file_name}", tags=["chore-photos"])
 async def get_photo(request: Request, chore_id: int, file_name: str, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
@@ -176,7 +176,7 @@ async def get_photo(request: Request, chore_id: int, file_name: str, db: Session
     return response.json()
 
 
-@router.delete("/chores/{chore_id}/photos/{file_name}", tags=["chores"])
+@router.delete("/chores/{chore_id}/photos/{file_name}", tags=["chore-photos"])
 async def delete_photo(request: Request, chore_id: int, file_name: str, db: Session = Depends(get_db)):
     db_chore = get_chore_by_id(db, chore_id)
     if db_chore is None:
