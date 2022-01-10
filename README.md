@@ -102,31 +102,89 @@ poszczególne elementy interfeksu użytkownika wraz z opisem działania.
 
 <kbd>![login](./doc/final/screenshots/login.png)</kbd>
 
+Użytkownik jest witany ekranem umożliwiającym logowanie lub rejestrację. Po naciśnięciu przycisku "Zaloguj się"
+użytkownik przenoszony jest do ekranu logowania Kontem Google.
+
 <kbd>![households_list](./doc/final/screenshots/households_list.png)</kbd>
 
-<kbd>![household_creator](./doc/final/screenshots/household_creator.png)</kbd>
+Pierwszy ekran widoczny po pomyślnym zalogowaniu (lub pomyślnej rejestracji) to lista gospodarstw domowych, których
+użytkownik jest członkiem. Z poziomu ekranu można utworzyć nowe gospodarstwo domowe, usunąć gospodarstwo lub przejść do
+ekranu szcegółów gospodarstwa.
+
+<kbd>![navbar](./doc/final/screenshots/navbar.png)</kbd>
+
+W całej aplikacji dostępny jest górny pasek nawigacyjny oferujący możliwość wylogowania z aplikacji lub przejścia do
+ekranu edycji danych kontaktowych.
 
 <kbd>![user_editor](./doc/final/screenshots/user_editor.png)</kbd>
 
+Ekran edycji danych kontaktowych pozwala na wyświetlenie adresu e-mail użytkownika (można w ten sposób np. sprawdzić, na
+jaki adres e-mail będą przychodziły powiadomienia) oraz umożliwia zmianę imienia i nazwiska użytkownika. Po rejestracji
+użytkownikowi przypisywane jest imię i nazwisko z Konta Google. Imię i nazwisko widoczne jest w różnych miejscach
+interfejsu użytkownika oraz w komunikacji e-mail.
+
+<kbd>![household_creator](./doc/final/screenshots/household_creator.png)</kbd>
+
+Kreator gospodarstwa domowego ogranicza się do podania nazwy nowego gospodarstwa domowego - pozostałe atrybuty
+gospodarstwa ustawia się z poziomu szczegółów gospodarstwa. Użytkownik tworzący gospodarstwo staje się jego
+właścicielem: właściciela gospodarstwa nie można usunąć z członków gospodarstwa.
+
 <kbd>![chores_list](./doc/final/screenshots/chores_list.png)</kbd>
+
+Po przejściu do szczegółów gospodarstwa widoczna jest nazwa oraz ID gospodarstwa domowego. Domyślnie otwarta jest
+karta "Obowiązki" prezentująca listę obowiązków domowych. Każdy obowiązek domowy opatrzony jest: nazwą, wykonawcą (jeśli
+jest przypisany), datą następnego wystąpienia oraz interwałem. Z poziomu listy obowiązków istnieje możliwość usunięcia
+obowiązku oraz wyświetlenia szczegółów obowiązku.
 
 <kbd>![chore_filtering](./doc/final/screenshots/chore_filtering.png)</kbd>
 
+Na liście obowiązków dostępne jest również filtrowanie przez nazwę oraz interwał. Przycisk "Wyczyść" powoduje usunięcie
+parametrów filtrujących i pokazanie pełnej listy obowiązków.
+
 <kbd>![members_list](./doc/final/screenshots/members_list.png)</kbd>
+
+Wśród członków gospodarstwa domowego wyróżniony jest jego właściciel: wiersz jest poatrzony etykietą, a przycisk do
+usuwania członka gospodarstwa jest nieaktywny. Usunięcie samego siebie z gospodarstwa podowuje przeniesienie na ekran
+listy gospodarstw domowych.
 
 <kbd>![chore_creator_validation](./doc/final/screenshots/chore_creator_validation.png)</kbd>
 
+Z poziomu listy obowiązków można również wywołać formularz dodawania obowiązku domowego. Wartości umieszczane w tym
+formularzu (jak i w pozostałych formularzach w aplikacji) podlegają walidacji po stronie Front-End oraz Back-End.
+
 <kbd>![chore_info](./doc/final/screenshots/chore_info.png)</kbd>
+
+Ekran szczegółów obowiązku domowego przedstawia podstawowe informacje o obowiązku: ID, nazwę, opis, wykonawcę,
+harmonogram i następne wystąpienie. Na ekranie dostępny jest odnośnik do gospodarstwa domowego, którego dotyczy
+obowiązek. Wykonawcę obowiązku można przypisać, usunąć (wtedy obowiązek nie będzie miał wykonawcy) lub nadpisać.
+
+<kbd>![error_404](./doc/final/screenshots/error_404.png)</kbd>
+
+Każde pole odnoszące się do użytkownika jest walidowane pod kątem istnienia użytkownika w bazie danych aplikacji.
 
 <kbd>![chore_editor](./doc/final/screenshots/chore_editor.png)</kbd>
 
+Z ekranu szczegółów istnieje możliwość przejścia do edycji obowiązku domowego. Formularz jest wypełniany dotychczasowymi
+wartościami atrybutów obowiązku.
+
 <kbd>![chore_description_translation](./doc/final/screenshots/chore_description_translation.png)</kbd>
+
+Opis obowiązku można przetłumaczyć na jeden z dostępnych języków.
 
 <kbd>![chore_photos](./doc/final/screenshots/chore_photos.png)</kbd>
 
+W ramach szczegółów obowiązku domowego dostępna jest również galeria obowiązku w postaci siatki zdjęć oraz komponentu
+umożliwiającego dodanie nowego zdjęcia. Akceptowane są wyłącznie pliki graficzne.
+
 <kbd>![chore_photo_preview](./doc/final/screenshots/chore_photo_preview.png)</kbd>
 
+Po wybraniu żądanego zdjęcia otwiera się jego podgląd. Z tego poziomu możliwe jest usunięcie zdjęcia z galerii.
+
 <kbd>![notification](./doc/final/screenshots/notification.png)</kbd>
+
+Aby użytkownicy nie zapomnieli o obowiązkach domowych, aplikacja wysyła komunikaty e-mail o nadchodzących obowiązkach.
+Komunikacja kierowana jest na adres e-mail konta użytkownika i następuje max. 1h przed planowanym terminem rozpoczęcia
+obowiązku. Nadchodzące obowiązki użytkownika są sprawdzane przez serwis powiadomień co 5 minut.
 
 ## Wyzwania
 
@@ -158,14 +216,16 @@ może tego zrobić). W ten sposób zawsze istnieje co najmniej jeden użytkownik
 
 ## Wnioski
 
-Realizacja projektu w oparciu o rozwiązania chmurowe przebiegła szybko i bezproblemowo. Serwisy AppEngine są łatwe we
-wdrażaniu oraz umożliwiają rozsądne automatyczne skalowanie. Dzięki podejściu pay-as-you-go zespół nie musiał martwić
-się o koszty nieużywanej infrastruktury. Nie było również konieczności szukania maszyn mogących hostować rozwiązania -
-cała infrastruktura została wygodnie powołana za pomocą Terraform, a zmiany są na bieżąco odzwierciedlane w
-wersjonowanym kodzie.
+Realizacja projektu w oparciu o rozwiązania chmurowe przebiegła szybko i bezproblemowo. Udało się zaimplementować całą
+założoną funkcjonalność.
 
-Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają jeszcze
-wygodniejszą oraz jeszcze szybszą implementację.
+Serwisy AppEngine są łatwe we wdrażaniu oraz umożliwiają rozsądne automatyczne skalowanie. Dzięki podejściu
+pay-as-you-go zespół nie musiał martwić się o koszty nieużywanej infrastruktury. Nie było również konieczności szukania
+maszyn mogących hostować rozwiązania - cała infrastruktura została wygodnie powołana za pomocą Terraform, a zmiany są na
+bieżąco odzwierciedlane w wersjonowanym kodzie. Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się
+ze środowiskiem AppEngine i umożliwiają jeszcze wygodniejszą oraz jeszcze szybszą implementację.
+
+Praca zespołowa przebiegła sprawnie dzięki bieżącej organizacji pracy na podstawie tablicy zadań.
 
 ## Dodatkowe informacje
 
