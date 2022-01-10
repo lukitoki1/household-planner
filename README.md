@@ -27,7 +27,7 @@ w całości w oparciu o usługi dostępne w Google Cloud Platform (GCP).
 Aplikacja "Household Planner" służy do zarządzania obowiązakmi domowymi w gospodarstwie użytkownika. Do logowania oraz
 rejestracji wykorzystywane jest Konto Google.
 
-<kbd>![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)</kbd>
+![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)
 
 Pierwszym ekranem widocznym po zalogowaniu jest lista gospodarstw domowych, kto których użytkoenik należy. Z opziomu
 listy można przejść do szczegółów gospodarstwa lub utworzyć nowe gospodarstwo domowe.
@@ -97,7 +97,36 @@ Podział zadań wyglądał następująco:
 
 ## Zaimplementowana funkcjonalność
 
-TODO: screeny z apki, screen powiadomienia e-mail
+W toku prac zespołu udało się zaimplementować całą zakładaną funkcjonalność aplikacji. Poniżej przedstawiono
+poszczególne elementy interfeksu użytkownika wraz z opisem działania.
+
+<kbd>![login](./doc/final/screenshots/login.png)</kbd>
+
+<kbd>![households_list](./doc/final/screenshots/households_list.png)</kbd>
+
+<kbd>![household_creator](./doc/final/screenshots/household_creator.png)</kbd>
+
+<kbd>![user_editor](./doc/final/screenshots/user_editor.png)</kbd>
+
+<kbd>![chores_list](./doc/final/screenshots/chores_list.png)</kbd>
+
+<kbd>![chore_filtering](./doc/final/screenshots/chore_filtering.png)</kbd>
+
+<kbd>![members_list](./doc/final/screenshots/members_list.png)</kbd>
+
+<kbd>![chore_creator_validation](./doc/final/screenshots/chore_creator_validation.png)</kbd>
+
+<kbd>![chore_info](./doc/final/screenshots/chore_info.png)</kbd>
+
+<kbd>![chore_editor](./doc/final/screenshots/chore_editor.png)</kbd>
+
+<kbd>![chore_description_translation](./doc/final/screenshots/chore_description_translation.png)</kbd>
+
+<kbd>![chore_photos](./doc/final/screenshots/chore_photos.png)</kbd>
+
+<kbd>![chore_photo_preview](./doc/final/screenshots/chore_photo_preview.png)</kbd>
+
+<kbd>![notification](./doc/final/screenshots/notification.png)</kbd>
 
 ## Wyzwania
 
