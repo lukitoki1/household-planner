@@ -27,8 +27,7 @@ w całości w oparciu o usługi dostępne w Google Cloud Platform (GCP).
 Aplikacja "Household Planner" służy do zarządzania obowiązakmi domowymi w gospodarstwie użytkownika. Do logowania oraz
 rejestracji wykorzystywane jest Konto Google.
 
-|![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)|
--
+<kbd>![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)</kbd>
 
 Pierwszym ekranem widocznym po zalogowaniu jest lista gospodarstw domowych, kto których użytkoenik należy. Z opziomu
 listy można przejść do szczegółów gospodarstwa lub utworzyć nowe gospodarstwo domowe.
