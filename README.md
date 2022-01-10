@@ -1,6 +1,18 @@
 # Household Planner
 
-#### Dokumentacja oraz sprawozdanie projektu z przedmiotu "Programowanie usług w chmurze"
+Repozytorium Back-End projektu "Household Planner"
+
+## Repozytoria
+
+Projekt był realizowany w repozytoriach dedykowanych przechowywaniu określonych komponentów projektu:
+
+* https://github.com/lukitoki1/household-planner - Back-End aplikacji
+* https://github.com/lukitoki1/household-planner-frontend - Front-End aplikacji
+* https://github.com/ErnestSzypula/household-planner-terraform - Terraform infrastruktury aplikacji
+
+# Dokumentacja i sprawozdanie
+
+#### Dokumentacja i sprawozdanie projektu z przedmiotu "Programowanie usług w chmurze"
 
 Łukasz Kamiński, Mateusz Kossakowski, Arkadiusz Michalak, Rafał Pachnia, Ernest Szypuła.
 
@@ -15,7 +27,8 @@ w całości w oparciu o usługi dostępne w Google Cloud Platform (GCP).
 Aplikacja "Household Planner" służy do zarządzania obowiązakmi domowymi w gospodarstwie użytkownika. Do logowania oraz
 rejestracji wykorzystywane jest Konto Google.
 
-![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)
+|![Diagram przypadkow uzycia 1-2](./doc/final/use_case_1_2.png)|
+-
 
 Pierwszym ekranem widocznym po zalogowaniu jest lista gospodarstw domowych, kto których użytkoenik należy. Z opziomu
 listy można przejść do szczegółów gospodarstwa lub utworzyć nowe gospodarstwo domowe.
@@ -126,17 +139,9 @@ wersjonowanym kodzie.
 Dodatkowe usługi (SSO, Secret Manager, Cloud SQL) dobrze integrują się ze środowiskiem AppEngine i umożliwiają jeszcze
 wygodniejszą oraz jeszcze szybszą implementację.
 
-## Repozytoria
+## Dodatkowe informacje
 
-Projekt był realizowany w repozytoriach dedykowanych przechowywaniu określonych komponentów projektu:
-
-* https://github.com/lukitoki1/household-planner - Back-End aplikacji
-* https://github.com/lukitoki1/household-planner-frontend - Front-End aplikacji
-* https://github.com/ErnestSzypula/household-planner-terraform - Terraform infrastruktury aplikacji
-
-# Dodatkowe informacje
-
-## Struktura API
+### Struktura API
 
 Zaprezentowane zrzuty ekranu pochodzą z narzędzia Swagger.
 
