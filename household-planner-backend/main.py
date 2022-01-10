@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
+from auth.auth_middleware import AuthMiddleware
 from db.database import engine
 from models import chore, household, household_members, user
 from routers import households, users, chores
@@ -27,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.add_middleware(AuthMiddleware)
+app.add_middleware(AuthMiddleware)
 
 app.include_router(households.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
